@@ -55,7 +55,47 @@ function collect_links(inputfile::String, repo::String)
     return linkmap
 end
 
-# Rewrite CHANGELOG.md to a Documenter-friendly markdown file
+"""
+    generate(
+        ::Documenter, inputfile::String, outputfile::String;
+        repo::String, branch::String = "master",
+    )
+
+Read the input changelog file and modify it, according to the rules below, so that in can be
+fed to [Documenter](https://github.com/JuliaDocs/Documenter.jl). `repo` is the default
+repository (e.g. `repo = "JuliaDocs/Changelog.jl"`) and `branch` the branch for which to
+point Documenter's `EditURL` link to.
+
+The following modifications and replacements are performed:
+
+ - `[#XYZ]` is replaced with `[#XYZ](https://github.com/\$repo/issues/XYZ)` where `repo` is
+   the input keyword argument. For example, `[#123]` becomes
+   `[#123](https://github.com/JuliaDocs/Changelog.jl/issues/123)` (with
+   `repo = "JuliaDocs/Changelog.jl"`).
+
+ - `[abc#XYZ]` is replaced with `[abc#XYZ](https://github.com/abc/issues/XYZ)`. For example,
+   `[JuliaLang/julia#265]` becomes
+   `[JuliaLang/julia#265](https://github.com/JuliaLang/julia/issues/265)`.
+
+ - `[vX.Y.Z]` is replaced with `[vX.Y.Z](https://github.com/\$repo/releases/tag/vX.Y.Z)`.
+   For example, `[v1.0.0]` becomes
+   `[v1.0.0](https://github.com/JuliaDocs/Changelog.jl/releases/tag/v1.0.0)` (with
+   `repo = "JuliaDocs/Changelog.jl"`).
+
+ - `[@abc]` is replaced with `[@abc](https://github.com/abc)`. For example, `[@octocat]`
+   becomes `[@octocat](https://github.com/octocat)`.
+
+ - Links of the form
+   ```
+   [link text][target]
+
+   [target]: https://example.com
+   ```
+   are inlined and becomes
+   ```
+   [link text](https://example.com)
+   ```
+"""
 function generate(
     ::Documenter,
     inputfile::String,
@@ -128,12 +168,40 @@ function generate(
     return
 end
 
+"""
+    generate(
+        ::CommonMark, inputfile::String, outputfile::String = inputfile;
+        repo::String,
+    )
+
+Read the input changelog file and modify it as described below. In particular, this method
+scans the input for "link tokens", and generates a list of urls placed at the bottom of the
+file.
+
+The following link tokens are discovered:
+
+ - `[#XYZ]` results in the link `[#XYZ]: https://github.com/\$repo/issues/XYZ`, where `repo`
+   is the input keyword argument. For example, `[#123]` adds
+   `[#123]: https://github.com/JuliaDocs/Changelog.jl/issues/123` to the list (with
+   `repo = "JuliaDocs/Changelog.jl"`).
+
+ - `[abc#XYZ]` results in the link `[abc#XYZ]: https://github.com/abc/issues/XYZ`. For
+   example, `[JuliaLang/julia#265]` adds
+   `[JuliaLang/julia#265]: https://github.com/JuliaLang/julia/issues/265` to the list.
+
+ - `[vX.Y.Z]` results in the link `[vX.Y.Z]: https://github.com/\$repo/releases/tag/vX.Y.Z`.
+   For example, `[v1.0.0]` adds
+   `[v1.0.0](https://github.com/JuliaDocs/Changelog.jl/releases/tag/v1.0.0)` to the list
+   (with `repo = "JuliaDocs/Changelog.jl"`).
+
+ - `[@abc]` results in the link `[@abc]: https://github.com/abc`. For example, `[@octocat]`
+   adds `[@octocat]: https://github.com/octocat` to the list
+"""
 function generate(
     ::CommonMark,
     inputfile::String,
     outputfile::String = inputfile;
     repo::String,
-    kwargs...,
 )
     # Get the map of token to full URL
     linkmap = collect(collect_links(inputfile, repo))
