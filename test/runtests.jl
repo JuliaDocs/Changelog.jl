@@ -3,6 +3,8 @@ using Changelog, Test
 const CHANGELOG = """
 ## Version [v1.2.3] - link to GitHub release
  - Link to issue/pull request in own repository: [#123]
+ - Link to short commit in own repository: [abcd123]
+ - Link to long commit in own repository: [abcdef0123456789abcdef0123456789abcdef12]
  - Link to issue/pull request in another GitHub repository:
    [JuliaLang/julia#123], [JuliaDocs/Documenter.jl#123]
  - Link to GitHub user: [@octocat]
@@ -22,6 +24,8 @@ EditURL = "https://github.com/JuliaDocs/Changelog.jl/blob/master/CHANGELOG.md"
 
 ## Version [v1.2.3](https://github.com/JuliaDocs/Changelog.jl/releases/tag/v1.2.3) - link to GitHub release
  - Link to issue/pull request in own repository: [#123](https://github.com/JuliaDocs/Changelog.jl/issues/123)
+ - Link to short commit in own repository: [abcd123](https://github.com/JuliaDocs/Changelog.jl/commit/abcd123)
+ - Link to long commit in own repository: [abcdef0123456789abcdef0123456789abcdef12](https://github.com/JuliaDocs/Changelog.jl/commit/abcdef0123456789abcdef0123456789abcdef12)
  - Link to issue/pull request in another GitHub repository:
    [JuliaLang/julia#123](https://github.com/JuliaLang/julia/issues/123), [JuliaDocs/Documenter.jl#123](https://github.com/JuliaDocs/Documenter.jl/issues/123)
  - Link to GitHub user: [@octocat](https://github.com/octocat)
@@ -35,6 +39,8 @@ EditURL = "https://github.com/JuliaDocs/Changelog.jl/blob/master/CHANGELOG.md"
 const GITHUB_OUTPUT = """
 ## Version [v1.2.3] - link to GitHub release
  - Link to issue/pull request in own repository: [#123]
+ - Link to short commit in own repository: [abcd123]
+ - Link to long commit in own repository: [abcdef0123456789abcdef0123456789abcdef12]
  - Link to issue/pull request in another GitHub repository:
    [JuliaLang/julia#123], [JuliaDocs/Documenter.jl#123]
  - Link to GitHub user: [@octocat]
@@ -51,6 +57,8 @@ $(Changelog.CHANGELOG_LINK_SEPARATOR)
 
 [v1.2.3]: https://github.com/JuliaDocs/Changelog.jl/releases/tag/v1.2.3
 [#123]: https://github.com/JuliaDocs/Changelog.jl/issues/123
+[abcd123]: https://github.com/JuliaDocs/Changelog.jl/commit/abcd123
+[abcdef0123456789abcdef0123456789abcdef12]: https://github.com/JuliaDocs/Changelog.jl/commit/abcdef0123456789abcdef0123456789abcdef12
 [JuliaDocs/Documenter.jl#123]: https://github.com/JuliaDocs/Documenter.jl/issues/123
 [JuliaLang/julia#123]: https://github.com/JuliaLang/julia/issues/123
 [@octocat]: https://github.com/octocat
