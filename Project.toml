@@ -1,6 +1,6 @@
 name = "Changelog"
 uuid = "5217a498-cd5d-4ec6-b8c2-9b85a09b6e3e"
-version = "1.0.0"
+version = "1.1.0"
 
 [compat]
 julia = "1.6"

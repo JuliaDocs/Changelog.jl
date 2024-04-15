@@ -53,6 +53,13 @@ function collect_links(inputfile::String, repo::String)
         linkmap[m["token"]] = "https://github.com/$(repo)/releases/tag/$(m["tag"])"
     end
 
+    # Rule: [<commit hash>] -> https://github.com/url/commit/<commit hash>
+    # Description: Replace short (7) or long (40) commit hash with a link to the commit
+    # Example: [98c2c4f] -> https://github.com/JuliaDocs/Changelog.jl/commit/98c2c4f
+    for m in eachmatch(r"(?<!\])\[(?<commit>[a-f0-9]{7}|[a-f0-9]{40})\](?![\[\(])", content)
+        linkmap[m.match] = "https://github.com/$(repo)/commit/$(m["commit"])"
+    end
+
     return linkmap
 end
 
@@ -73,6 +80,10 @@ The following modifications and replacements are performed:
    the input keyword argument. For example, `[#123]` becomes
    `[#123](https://github.com/JuliaDocs/Changelog.jl/issues/123)` (with
    `repo = "JuliaDocs/Changelog.jl"`).
+
+ - `[<commit hash>]` (where `<commit hash>` is either of length 7 or 40) is replaced with
+   `[<commit hash>](https://github.com/\$repo/commit/<commit hash>)` where `repo` is the
+   input keyword argument.
 
  - `[abc#XYZ]` is replaced with `[abc#XYZ](https://github.com/abc/issues/XYZ)`. For example,
    `[JuliaLang/julia#265]` becomes
@@ -186,6 +197,10 @@ The following link tokens are discovered:
    `[#123]: https://github.com/JuliaDocs/Changelog.jl/issues/123` to the list (with
    `repo = "JuliaDocs/Changelog.jl"`).
 
+ - `[<commit hash>]` (where `<commit hash>` is either of length 7 or 40) results in the link
+   `[<commit hash>]: https://github.com/\$repo/commit/<commit hash>` where `repo` is the
+   input keyword argument.
+
  - `[abc#XYZ]` results in the link `[abc#XYZ]: https://github.com/abc/issues/XYZ`. For
    example, `[JuliaLang/julia#265]` adds
    `[JuliaLang/julia#265]: https://github.com/JuliaLang/julia/issues/265` to the list.
@@ -207,7 +222,12 @@ function generate(
     # Get the map of token to full URL
     linkmap = collect(collect_links(inputfile, repo))
 
-    # Sort releases first, then own issues, then external issues, then other things
+    # Sorting order:
+    #  1. Releases by version
+    #  2. Own issues by issue number
+    #  3. Own commits by hash
+    #  4. External issues by issue number
+    #  5. Other things by link token
     sort!(linkmap; by = function(x)
         k, v = x
         if occursin("/releases/tag/", v)
@@ -217,13 +237,16 @@ function generate(
             # Sort issues by number
             n = parse(Int, match(r"\[\#(?<id>\d+)\]", k)["id"])
             return (2, n)
+        elseif occursin("github.com/$(repo)/commit/", v)
+            # Sort commit by hash (url)
+            return (3, v)
         elseif occursin(r"github\.com/.*/issues/", v)
             # Sort by repo name, then issues by number
             m = match(r"\[(?<repo>.*)\#(?<id>\d+)\]", k)
             n = parse(Int, m["id"])
-            return (3, m["repo"], n)
+            return (4, m["repo"], n)
         else
-            return (4,)
+            return (5, k)
         end
     end)
 
