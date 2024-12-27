@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- ## [Unreleased] -->
 
+### Added
+- Public types `SimpleLog` and `VersionInfo` which capture a simple in-memory representation of a changelog
+- `Base.parse(SimpleLog, input)` and public function `parsefile` for parsing `SimpleLog`s from files and other representations.
+
 ## [v1.1.0] - 2023-11-13
 ### Added
 - Links of the form `[<commit hash>]`, where `<commit hash>` is a commit hash
