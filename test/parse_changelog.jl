@@ -112,7 +112,7 @@ end
         @test ver_1p1.version == "1.1.0"
         @test ver_1p1.url == "https://github.com/JuliaDocs/Changelog.jl/releases/tag/v1.1.0"
         @test ver_1p1.date == Date("2023-11-13")
-        @test keys(ver_1p1.changes) == "Added"
+        @test only(keys(ver_1p1.changes)) == "Added"
         @test ver_1p1.changes["Added"] == ["Links of the form `[<commit hash>]`, where `<commit hash>` is a commit hashof length 7 or 40, are now linkified. (#4)"]
 
         @test ver_1p0.version == "1.0.0"
