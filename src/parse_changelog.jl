@@ -104,7 +104,8 @@ function filter_children(node, ::Type{T}) where {T}
 end
 
 function filter_tree(node, ::Type{T}) where {T}
-    return Iterators.filter(PreOrderDFS(node)) do x
+    filter = node -> !(nodevalue(node) isa T) # don't recurse _into_ Ts
+    return Iterators.filter(PreOrderDFS(filter, node)) do x
         nodevalue(x) isa T
     end
 end
@@ -116,6 +117,15 @@ function find_first_tree(node, ::Type{T}) where {T}
         end
     end
     return nothing
+end
+
+function bullets_to_list(items)
+    # If there were no bullets, just text, then combine them
+    if all(x -> nodevalue(x) isa MarkdownAST.Text, items)
+        return [join((text_content(x) for x in items), " ")]
+    else
+        return [text_content(x) for x in items]
+    end
 end
 
 #####
@@ -172,13 +182,16 @@ function _parse_simplelog(ast::MarkdownAST.Node)
         seen = Set()
         for subsection in filter_children(version_section, MarkdownAST.Heading)
             subsection_name = text_content(subsection.heading_node)
-            items = filter_tree(subsection, MarkdownAST.Item)
+            # Note: `filter_tree` doesn't recurse into the types we are looking for, so
+            # here if there is an item, we will choose that one (and not the text contained in it),
+            # and if we hit a text, we know it's not contained in an item that we are also pulling out.
+            items = filter_tree(subsection, Union{MarkdownAST.Item, MarkdownAST.Text})
             union!(seen, items)
-            changes[subsection_name] = [text_content(x) for x in items]
+            changes[subsection_name] = bullets_to_list(items)
         end
         # see if there were items not within a subsection
-        other_items = setdiff(filter_tree(version_section, MarkdownAST.Item), seen)
-        general = filter!(!isempty, String[text_content(x) for x in other_items])
+        other_items = setdiff(filter_tree(version_section, Union{MarkdownAST.Item, MarkdownAST.Text}), seen)
+        general = filter!(!isempty, bullets_to_list(other_items))
         if !isempty(general)
             # if we had subsections already, we'll make an artificial new subsection called "General"
             if !isempty(changes)

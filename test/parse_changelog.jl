@@ -95,6 +95,32 @@ end
         @test isempty(filter(x -> isnothing(x.url), documenter.versions))
     end
 
+    @testset "v1.1 changelog" begin
+        # Here we check in the changelog for this package as `v1.1.md`
+        # This is a tricky one, as for v1.0.0, there are no bullet points (nor sections), only text.
+
+        v1p1 = parsefile(test_path("v1.1.md"))
+        # we parse dates for every entry
+        @test isempty(filter(x -> x.date === nothing, v1p1.versions))
+        # and find at least one change per version
+        @test isempty(filter(x -> isempty(x.changes), v1p1.versions))
+        # and we parse a URL for every version
+        @test isempty(filter(x -> isnothing(x.url), v1p1.versions))
+        @test length(v1p1.versions) == 2
+        ver_1p1, ver_1p0 = v1p1.versions
+
+        @test ver_1p1.version == "1.1.0"
+        @test ver_1p1.url == "https://github.com/JuliaDocs/Changelog.jl/releases/tag/v1.1.0"
+        @test ver_1p1.date == Date("2023-11-13")
+        @test keys(ver_1p1.changes) == "Added"
+        @test ver_1p1.changes["Added"] == ["Links of the form `[<commit hash>]`, where `<commit hash>` is a commit hashof length 7 or 40, are now linkified. (#4)"]
+
+        @test ver_1p0.version == "1.0.0"
+        @test ver_1p0.url == "https://github.com/JuliaDocs/Changelog.jl/releases/tag/v1.0.0"
+        @test ver_1p0.date == Date("2023-11-13")
+        @test ver_1p0.changes == ["First release. See README.md for currently supported functionality."]
+    end
+
     # Next we check several quite similar changelogs which have some differences in formatting
     @testset "$file" for file in readdir(test_path("good"); join = true)
         c = parsefile(file)
