@@ -16,8 +16,8 @@
     @testset "header with invalid date" begin
         header = "[1.0.0] - invalid-date"
         result = parse_version_header(header)
-        # note we pass the whole thing as the name
-        # I guess that's alright?
+        # note we pass the whole thing as the name - potentially we could improve things
+        # so we only skip the date
         @test result.name == "1.0.0 - invalid-date"
         @test result.date === nothing
     end
@@ -71,6 +71,9 @@
 end
 
 @testset "parsefile" begin
+    # Here we test some point-in-time examples. This is not intended to test anything about
+    # JuMP itself (e.g. if it is keeping a consistently formatted changelog), but rather that we can parse
+    # its changelog as of when this file was committed (Dec 2024), to test the parsing code on in-the-wild examples.
     @testset "JuMP changelog" begin
         jump = parsefile(test_path("jump.md"))
         # we parse dates for every entry
@@ -81,6 +84,7 @@ end
         @test isempty(filter(x -> !isnothing(x.url), jump.versions))
     end
 
+    # Similarly we check that we can parse Documenter's changelog (as of Dec 2024).
     @testset "Documenter changelog" begin
         documenter = parsefile(test_path("documenter.md"))
         # we parse dates for every entry
@@ -91,6 +95,7 @@ end
         @test isempty(filter(x -> isnothing(x.url), documenter.versions))
     end
 
+    # Next we check several quite similar changelogs which have some differences in formatting
     @testset "$file" for file in readdir(test_path("good"); join = true)
         c = parsefile(file)
         @test c.title == "Changelog"
@@ -105,8 +110,9 @@ end
         @test !isempty(v1.changes)
     end
 
+    # Lastly, we check that we don't error on some "bad" examples,
+    # which have e.g. inconsistent or missing headings
     @testset "$file" for file in readdir(test_path("bad"); join = true)
-        # Here we should not error, but we also can't expect good results
         c = parsefile(file)
         @test c.title == "Changelog"
     end
