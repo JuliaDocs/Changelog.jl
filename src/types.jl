@@ -39,15 +39,15 @@ function full_show(io, v::VersionInfo; indent = 0, showtype = true)
     end
 end
 
-struct Changelog_
+struct SimpleLog
     title::Union{Nothing, String}
     intro::Union{Nothing, String}
     url::Union{Nothing, String}
     versions::Vector{VersionInfo}
 end
 
-function Base.show(io::IO, mime::MIME"text/plain", c::Changelog_)
-    print(io, Changelog_, " with")
+function Base.show(io::IO, mime::MIME"text/plain", c::SimpleLog)
+    print(io, SimpleLog, " with")
     print(io, "\n- title: ", c.title)
     print(io, "\n- intro: ", c.intro)
     print(io, "\n- url: ", c.url)
@@ -59,7 +59,7 @@ function Base.show(io::IO, mime::MIME"text/plain", c::Changelog_)
     return
 end
 
-function Base.parse(::Type{Changelog_}, text::AbstractString)
+function Base.parse(::Type{SimpleLog}, text::AbstractString)
     # parse into CommonMark AST
     parser = CM.Parser()
     CM.enable!(parser, CM.FootnoteRule())
@@ -70,5 +70,5 @@ function Base.parse(::Type{Changelog_}, text::AbstractString)
 end
 
 function parsefile(path)
-    return parse(Changelog_, read(path, String))
+    return parse(SimpleLog, read(path, String))
 end

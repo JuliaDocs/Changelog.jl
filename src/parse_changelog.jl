@@ -194,5 +194,5 @@ function _parse_changelog(ast::MarkdownAST.Node)
 
         push!(versions, VersionInfo(version, url, date, changes))
     end
-    return Changelog_(title, intro, url, versions)
+    return SimpleLog(title, intro, url, versions)
 end

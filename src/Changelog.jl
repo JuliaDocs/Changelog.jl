@@ -15,7 +15,7 @@ import CommonMark as CM
 
 public parsefile, VersionInfo
 
-export Changelog_
+export SimpleLog
 
 # generate Documenter changelogs and links
 include("generate.jl")
