@@ -55,7 +55,6 @@ A simple in-memory changelog format, with properties:
 
 - `title::Union{Nothing, String}`
 - `intro::Union{Nothing, String}`
-- `url::Union{Nothing, String}`
 - `versions::Vector{VersionInfo}`
 
 A `SimpleLog` can be parsed out of a markdown-formatted string with `Base.parse`.
@@ -70,7 +69,6 @@ See also: [`VersionInfo`](@ref).
 struct SimpleLog
     title::Union{Nothing, String}
     intro::Union{Nothing, String}
-    url::Union{Nothing, String}
     versions::Vector{VersionInfo}
 end
 
@@ -78,7 +76,6 @@ function Base.show(io::IO, ::MIME"text/plain", c::SimpleLog)
     print(io, SimpleLog, " with")
     print(io, "\n- title: ", c.title)
     print(io, "\n- intro: ", c.intro)
-    print(io, "\n- url: ", c.url)
     print(io, "\n- versions:")
     for v in c.versions
         print(io, "\n")

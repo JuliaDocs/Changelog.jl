@@ -1,5 +1,7 @@
 # Changelog
 
+*Intro*
+
 ## [Unreleased]
 
 - Added a new login page

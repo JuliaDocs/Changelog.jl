@@ -139,15 +139,12 @@ function _parse_simplelog(ast::MarkdownAST.Node)
 
     # find highest-level header in document
     top_header = find_first_tree(root, MarkdownAST.Heading)
+
     title = text_content(top_header.heading_node) # reach into the heading node to get the actual contenxt
 
     # Now back to the "main" tree, look for the first paragraph under the top-heading to get an "intro"
     intro_para = find_first_child(top_header, MarkdownAST.Paragraph)
     intro = isnothing(intro_para) ? nothing : text_content(intro_para)
-
-    # see if there is a link provided as well
-    link = find_first_child(top_header, MarkdownAST.Link)
-    url = isnothing(link) ? nothing : nodevalue(link).destination
 
     # Now we will parse the versions. We assume each heading below the top-heading is a separate version.
     versions = VersionInfo[]
@@ -163,7 +160,7 @@ function _parse_simplelog(ast::MarkdownAST.Node)
             c = find_first_child(link, MarkdownAST.Text)
             return !isnothing(c) && nodevalue(c).text == version
         end
-        url = isempty(links) ? nothing : nodevalue(first(links)).destination
+        version_url = isempty(links) ? nothing : nodevalue(first(links)).destination
 
         # Now let us formulate the changelog for this version
         # We may have subsections or just a flat list of changes
@@ -192,7 +189,7 @@ function _parse_simplelog(ast::MarkdownAST.Node)
             end
         end
 
-        push!(versions, VersionInfo(version, url, date, changes))
+        push!(versions, VersionInfo(version, version_url, date, changes))
     end
-    return SimpleLog(title, intro, url, versions)
+    return SimpleLog(title, intro, versions)
 end
