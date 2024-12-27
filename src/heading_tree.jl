@@ -16,6 +16,7 @@ end
 # simply passes along children and values to MarkdownAST's definitions
 AbstractTrees.children(n::Elt) = AbstractTrees.children(n.value)
 AbstractTrees.nodevalue(n::Elt) = AbstractTrees.nodevalue(n.value)
+MarkdownAST.unlink!(n::Elt) = MarkdownAST.unlink!(n.value)
 
 # Heading or Document
 struct MarkdownHeadingTree
@@ -29,6 +30,7 @@ Base.summary(io::IO, m::MarkdownHeadingTree) = print(io, MarkdownHeadingTree, "(
 AbstractTrees.children(n::MarkdownHeadingTree) = n.children
 # the nodevalue is the MarkdownAST node itself (which itself has children, but they form a disconnected separate tree)
 AbstractTrees.nodevalue(n::MarkdownHeadingTree) = AbstractTrees.nodevalue(n.heading_node)
+MarkdownAST.unlink!(n::MarkdownHeadingTree) = MarkdownAST.unlink!(n.heading_node)
 
 # Main function: transform a node for MarkdownAST.Document into a MarkdownHeadingTree
 function build_heading_tree(ast)
@@ -42,6 +44,7 @@ function build_heading_tree(ast)
         # optimization: don't recurse into values which can't contain a heading
         # (the `seen` mechanism below should ensure correctness regardless of what we do here,
         #  but this can be prevent unnecessary traversal)
+        # Note: currently this seems to be load-bearing for correctness, not sure why
         MarkdownAST.can_contain(nodevalue(node), MarkdownAST.Heading(1)) || return false
         return true
     end
@@ -49,7 +52,7 @@ function build_heading_tree(ast)
     # as a child of that heading.
     flat = MarkdownHeadingTree[]
     # we will keep track of non-heading elements we have seen, so we can avoid adding
-    # both a parent and its child which would cause extraneous edges in our tree
+    # both a parent and its child which would disrupt the tree structure (flattening it)
     seen = Set()
     for node in itr
         # we treat the Document as a special level-0 heading
@@ -65,6 +68,16 @@ function build_heading_tree(ast)
         else
             push!(flat[end].children, Elt(node))
             push!(seen, node)
+        end
+    end
+
+    # Now, we can't do this while traversing, but since we have finished traversing
+    # the tree, we need to unlink markdown AST node. They retain their children after unlinking, so we can continue e.g.
+    # traversing through `Elt`s to their children, but we want to remove connections to their parent, since
+    # they have a new parent, namely the `MarkdownHeadingTree` corresponding to the markdown heading the are "under", and this parent-child connection is encoded elsewhere (i.e. by being in the `.children` field)
+    for heading in flat
+        for c in heading.children
+            MarkdownAST.unlink!(c)
         end
     end
 

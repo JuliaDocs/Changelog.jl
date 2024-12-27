@@ -158,7 +158,7 @@ function _parse_simplelog(ast::MarkdownAST.Node)
         # here we check within the heading node itself (so the link is in the heading, not below it)
         links = Iterators.filter(filter_tree(version_section.heading_node, MarkdownAST.Link)) do link
             c = find_first_child(link, MarkdownAST.Text)
-            return !isnothing(c) && nodevalue(c).text == version
+            return !isnothing(c) && contains(nodevalue(c).text, version)
         end
         version_url = isempty(links) ? nothing : nodevalue(first(links)).destination
 

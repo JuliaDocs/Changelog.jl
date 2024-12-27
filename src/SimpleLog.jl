@@ -27,7 +27,9 @@ function full_show(io, v::VersionInfo; indent = 0, showtype = true)
         print(io, pad, "- ", v.version)
         pad *= "  "
     end
-    print(io, "\n", pad, "- url: ", v.url)
+    if v.url !== nothing
+        print(io, "\n", pad, "- url: ", v.url)
+    end
     print(io, "\n", pad, "- date: ", v.date)
     changes = v.changes
     return if isempty(changes)
@@ -76,10 +78,14 @@ function Base.show(io::IO, ::MIME"text/plain", c::SimpleLog)
     print(io, SimpleLog, " with")
     print(io, "\n- title: ", c.title)
     print(io, "\n- intro: ", c.intro)
-    print(io, "\n- versions:")
-    for v in c.versions
+    print(io, "\n- $(length(c.versions)) versions:")
+    n_to_show = 5
+    for v in first(c.versions, n_to_show)
         print(io, "\n")
         full_show(io, v; showtype = false, indent = 2)
+    end
+    if length(c.versions) > n_to_show
+        print(io, "\n    ⋮")
     end
     return
 end
