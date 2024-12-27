@@ -88,6 +88,16 @@ function Base.show(io::IO, ::MIME"text/plain", c::SimpleLog)
 end
 
 """
+    Base.parse(::Type{SimpleLog}, ast::MarkdownAST.Node)
+
+Parse a [`SimpleLog`](@ref) from a `MarkdownAST` node corresponding to a
+`MarkdownAST.Document`.
+"""
+function Base.parse(::Type{SimpleLog}, ast::MarkdownAST.Node)
+    return _parse_simplelog(ast) # see parse_changelog.jl for implementation
+end
+
+"""
     parse(::Type{SimpleLog}, text::AbstractString)
 
 Parse a [`SimpleLog`](@ref) from a markdown-formatted string.
@@ -100,16 +110,6 @@ function Base.parse(::Type{SimpleLog}, text::AbstractString)
     # convert to MarkdownAST AST
     ast = md_convert(MarkdownAST.Node, ast)
     return parse(SimpleLog, ast)
-end
-
-"""
-    Base.parse(::Type{SimpleLog}, ast::MarkdownAST.Node)
-
-Parse a [`SimpleLog`](@ref) from a `MarkdownAST` node corresponding to a
-`MarkdownAST.Document`.
-"""
-function Base.parse(::Type{SimpleLog}, ast::MarkdownAST.Node)
-    return _parse_changelog(ast) # see parse_changelog.jl
 end
 
 """

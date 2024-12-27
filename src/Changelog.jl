@@ -13,9 +13,7 @@ using AbstractTrees
 using OrderedCollections: OrderedDict
 import CommonMark as CM
 
-public parsefile, VersionInfo
-
-export SimpleLog
+VERSION >= v"1.11.0-DEV.469" && eval(Meta.parse("public parsefile, VersionInfo, SimpleLog, generate"))
 
 # generate Documenter changelogs and links
 include("generate.jl")
@@ -27,11 +25,10 @@ using .CommonMarkMarkdownASTInterop: md_convert
 # Convert MarkdownAST tree to our own tree
 include("heading_tree.jl")
 
-# Changelog and VersionInfo types, as well as API entrypoints
-include("types.jl")
+# SimpleLog and VersionInfo types, as well as API entrypoints
+include("SimpleLog.jl")
 
 # Tree traversal and parsing code
 include("parse_changelog.jl")
-
 
 end # module

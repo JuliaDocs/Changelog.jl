@@ -2,7 +2,7 @@
 ##### Parsing headings
 #####
 
-HEADING_REGEX = let
+const HEADING_REGEX = let
     prefix = raw"^(?:[V|v]ersion)?v?" # can start with Version, or just "v", or not (or versionv)
     space = raw"\s*"
     name = space * raw"(?<name>.+?)" * space # a version "name" is anything
@@ -45,11 +45,11 @@ function replace_until_convergence(str, repl...)
     end
     error("did not converge")
 end
+
 # Parse version header for name and date
 function parse_version_header(str; header_regex = HEADING_REGEX, dateformats = DATE_FORMATS)
-    header_text = strip(str)
     header_text = replace_until_convergence(
-        header_text,
+        strip(str),
         r"\[(.*)\]" => s"\1",
         r"\((.*)\)" => s"\1",
         r"`(.*)`" => s"\1",
@@ -122,8 +122,8 @@ end
 ##### Main parsing code
 #####
 
-# see `types.jl` for the API entrypoints (`Base.parse` and `parsefile`)
-function _parse_changelog(ast::MarkdownAST.Node)
+# see `SimpleLog.jl` for the API entrypoints (`Base.parse` and `parsefile`)
+function _parse_simplelog(ast::MarkdownAST.Node)
     # convert into a "MarkdownHeadingTree" where elements of a section are children of the section
     root = build_heading_tree(ast)
     # Now, we have a tree where content under a heading in the markdown document is a descendent
