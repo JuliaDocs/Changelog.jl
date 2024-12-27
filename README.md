@@ -52,3 +52,42 @@ The typical workflow is as follows:
    - Description of new feature with reference to pull request
      ([#123](https://github.com/JuliaDocs/Changelog.jl/issues/123)).
    ```
+
+### Parsing changelogs
+
+Changelog also provides functionality for parsing changelogs into a simple structure which can be programmatically queried,
+e.g. to check what the changes are for a particular version. The API for this functionality consists of:
+
+- `SimpleLog`: structure that contains a simple representation of a changelog.
+- `VersionInfo`: structure that contains a simple representation of a version in a changelog.
+- `Base.parse(SimpleLog, input)`: parse some in-memory input (a string, or a `MarkdownAST.Node`) into a `SimpleLog`
+- `Changelog.parsefile`: parses a markdown-formatted file into a `SimpleLog`
+
+For example, using `Changelog.parsefile` on the [CHANGELOG.md](./CHANGELOG.md) as of version 1.1 gives:
+
+```julia
+julia> changelog = Changelog.parsefile("CHANGELOG.md")
+SimpleLog with
+- title: Changelog.jl changelog
+- intro: All notable changes to this project will be documented in this file.
+- 2 versions:
+  - 1.1.0
+    - url: https://github.com/JuliaDocs/Changelog.jl/releases/tag/v1.1.0
+    - date: 2023-11-13
+    - changes
+      - Added
+        - Links of the form `[<commit hash>]`, where `<commit hash>` is a commit hashof length 7 or 40, are now linkified. (#4)
+  - 1.0.0
+    - url: https://github.com/JuliaDocs/Changelog.jl/releases/tag/v1.0.0
+    - date: 2023-11-13
+    - changes
+      - First release. See README.md for currently supported functionality.
+```
+
+The changes for 1.1.0 can be obtained by `log.versions[1].changes`:
+
+```julia
+julia> changelog.versions[1].changes
+OrderedCollections.OrderedDict{String, Vector{String}} with 1 entry:
+  "Added" => ["Links of the form `[<commit hash>]`, where `<commit hash>` is a commit hashof length 7 or 40, are now linkified. (#4)"]
+```
