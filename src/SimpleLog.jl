@@ -6,7 +6,7 @@ A struct representing the information in a changelog about a particular version,
 - `version::Union{Nothing, String}`: a string representation of a version number or name (e.g. "Unreleased" or "1.2.3").
 - `url::Union{Nothing, String}`: a URL associated to the version, if available
 - `date::Union{Nothing, Date}`: a date associated to the version, if available
-- `changes::Union{OrderedDict{String, Vector{String}}, Vector{String}}`: a list of changes associated to the version, either as a flat list (`Vector{String}`), or with ordered sections (`OrderedDict{String, Vector{String}`), where the keys are the section names and the values are the changes in that section.
+- `changes::Union{OrderedDict{String, Vector{String}}, Vector{String}}`: a list of changes associated to the version, either as a flat list (`Vector{String}`), or with ordered sections (`OrderedDict{String, Vector{String}`), where the keys are the section names and the values are the changes in that section. If a version uses sections, but also has items that are not in a section, a section called "General" will be used to store those. If there is already a section called "General", it will be named "General_", and so forth.
 """
 struct VersionInfo
     version::Union{Nothing, String}
@@ -78,13 +78,15 @@ function Base.show(io::IO, ::MIME"text/plain", c::SimpleLog)
     print(io, SimpleLog, " with")
     print(io, "\n- title: ", c.title)
     print(io, "\n- intro: ", c.intro)
-    print(io, "\n- $(length(c.versions)) versions:")
+    n_versions = length(c.versions)
+    plural = n_versions > 1 ? "s" : ""
+    print(io, "\n- $(n_versions) version$plural:")
     n_to_show = 5
     for v in first(c.versions, n_to_show)
         print(io, "\n")
         full_show(io, v; showtype = false, indent = 2)
     end
-    if length(c.versions) > n_to_show
+    if n_versions > n_to_show
         print(io, "\n    ⋮")
     end
     return
