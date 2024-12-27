@@ -1,4 +1,13 @@
-# Struct to represent version information
+"""
+    VersionInfo
+
+A struct representing the information in a changelog about a particular version, with properties:
+
+- `version::Union{Nothing, String}`: a string representation of a version number or name (e.g. "Unreleased" or "1.2.3").
+- `url::Union{Nothing, String}`: a URL associated to the version, if available
+- `date::Union{Nothing, Date}`: a date associated to the version, if available
+- `changes::Union{OrderedDict{String, Vector{String}}, Vector{String}}`: a list of changes associated to the version, either as a flat list (`Vector{String}`), or with ordered sections (`OrderedDict{String, Vector{String}`), where the keys are the section names and the values are the changes in that section.
+"""
 struct VersionInfo
     version::Union{Nothing, String}
     url::Union{Nothing, String}
@@ -39,6 +48,25 @@ function full_show(io, v::VersionInfo; indent = 0, showtype = true)
     end
 end
 
+"""
+    SimpleLog
+
+A simple in-memory changelog format, with properties:
+
+- `title::Union{Nothing, String}`
+- `intro::Union{Nothing, String}`
+- `url::Union{Nothing, String}`
+- `versions::Vector{VersionInfo}`
+
+A `SimpleLog` can be parsed out of a markdown-formatted string with `Base.parse`.
+
+SimpleLogs are not intended to be roundtrippable in-memory representations of markdown
+changelogs; rather, they discard most formatting and other details to provide a simple
+view to make it easy to query if the changelog has an entry for some particular version,
+or what the changes are for that version.
+
+See also: [`VersionInfo`](@ref).
+"""
 struct SimpleLog
     title::Union{Nothing, String}
     intro::Union{Nothing, String}
@@ -46,7 +74,7 @@ struct SimpleLog
     versions::Vector{VersionInfo}
 end
 
-function Base.show(io::IO, mime::MIME"text/plain", c::SimpleLog)
+function Base.show(io::IO, ::MIME"text/plain", c::SimpleLog)
     print(io, SimpleLog, " with")
     print(io, "\n- title: ", c.title)
     print(io, "\n- intro: ", c.intro)
@@ -59,6 +87,11 @@ function Base.show(io::IO, mime::MIME"text/plain", c::SimpleLog)
     return
 end
 
+"""
+    parse(::Type{SimpleLog}, text::AbstractString)
+
+Parse a [`SimpleLog`](@ref) from a markdown-formatted string.
+"""
 function Base.parse(::Type{SimpleLog}, text::AbstractString)
     # parse into CommonMark AST
     parser = CM.Parser()
@@ -66,9 +99,24 @@ function Base.parse(::Type{SimpleLog}, text::AbstractString)
     ast = parser(text)
     # convert to MarkdownAST AST
     ast = md_convert(MarkdownAST.Node, ast)
+    return parse(SimpleLog, ast)
+end
+
+"""
+    Base.parse(::Type{SimpleLog}, ast::MarkdownAST.Node)
+
+Parse a [`SimpleLog`](@ref) from a `MarkdownAST` node corresponding to a
+`MarkdownAST.Document`.
+"""
+function Base.parse(::Type{SimpleLog}, ast::MarkdownAST.Node)
     return _parse_changelog(ast) # see parse_changelog.jl
 end
 
+"""
+    parsefile(path) -> SimpleLog
+
+Parse a [`SimpleLog`](@ref) from a file path `path`.
+"""
 function parsefile(path)
     return parse(SimpleLog, read(path, String))
 end
