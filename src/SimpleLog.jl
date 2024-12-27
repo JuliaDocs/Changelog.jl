@@ -66,7 +66,7 @@ changelogs; rather, they discard most formatting and other details to provide a 
 view to make it easy to query if the changelog has an entry for some particular version,
 or what the changes are for that version.
 
-See also: [`VersionInfo`](@ref).
+See also: [`VersionInfo`](@ref), [`parsefile`](@ref).
 """
 struct SimpleLog
     title::Union{Nothing, String}
@@ -93,16 +93,6 @@ function Base.show(io::IO, ::MIME"text/plain", c::SimpleLog)
 end
 
 """
-    Base.parse(::Type{SimpleLog}, ast::MarkdownAST.Node)
-
-Parse a [`SimpleLog`](@ref) from a `MarkdownAST` node corresponding to a
-`MarkdownAST.Document`.
-"""
-function Base.parse(::Type{SimpleLog}, ast::MarkdownAST.Node)
-    return _parse_simplelog(ast) # see parse_changelog.jl for implementation
-end
-
-"""
     parse(::Type{SimpleLog}, text::AbstractString)
 
 Parse a [`SimpleLog`](@ref) from a markdown-formatted string.
@@ -114,7 +104,7 @@ function Base.parse(::Type{SimpleLog}, text::AbstractString)
     ast = parser(text)
     # convert to MarkdownAST AST
     ast = md_convert(MarkdownAST.Node, ast)
-    return parse(SimpleLog, ast)
+    return _parse_simplelog!(ast)
 end
 
 """

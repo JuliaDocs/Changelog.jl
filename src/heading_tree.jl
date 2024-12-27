@@ -33,7 +33,7 @@ AbstractTrees.nodevalue(n::MarkdownHeadingTree) = AbstractTrees.nodevalue(n.head
 MarkdownAST.unlink!(n::MarkdownHeadingTree) = MarkdownAST.unlink!(n.heading_node)
 
 # Main function: transform a node for MarkdownAST.Document into a MarkdownHeadingTree
-function build_heading_tree(ast)
+function build_heading_tree!(ast)
     if !(nodevalue(ast) isa MarkdownAST.Document)
         throw(ArgumentError("The initial node should be a `MarkdownAST.Document`"))
     end

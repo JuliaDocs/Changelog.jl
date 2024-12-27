@@ -60,7 +60,7 @@ e.g. to check what the changes are for a particular version. The API for this fu
 
 - `SimpleLog`: structure that contains a simple representation of a changelog.
 - `VersionInfo`: structure that contains a simple representation of a version in a changelog.
-- `Base.parse(SimpleLog, input)`: parse some in-memory input (a string, or a `MarkdownAST.Node`) into a `SimpleLog`
+- `Base.parse(SimpleLog, str)`: parse a markdown-formatted string into a `SimpleLog`
 - `Changelog.parsefile`: parses a markdown-formatted file into a `SimpleLog`
 
 For example, using `Changelog.parsefile` on the [CHANGELOG.md](./CHANGELOG.md) as of version 1.1 gives:

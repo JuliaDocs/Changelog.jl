@@ -135,9 +135,9 @@ end
 #####
 
 # see `SimpleLog.jl` for the API entrypoints (`Base.parse` and `parsefile`)
-function _parse_simplelog(ast::MarkdownAST.Node)
+function _parse_simplelog!(ast::MarkdownAST.Node)
     # convert into a "MarkdownHeadingTree" where elements of a section are children of the section
-    root = build_heading_tree(ast)
+    root = build_heading_tree!(ast)
     # Now, we have a tree where content under a heading in the markdown document is a descendent
     # of the corresponding `MarkdownHeadingTree` object in the tree.
     # content which was a child of the heading itself (e.g. the text within the heading)
