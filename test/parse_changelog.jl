@@ -121,6 +121,17 @@ end
         @test ver_1p0.changes == ["First release. See README.md for currently supported functionality."]
     end
 
+    @testset "general_section" begin
+        # For a version that has sections, but also has content _not_ in a section, we create a special "General" section
+        # to store that.
+        # What if you already have a general section? Then we create a `General_` section, and so-forth.
+        c = Changelog.parsefile(test_path("general_section.md"))
+        unreleased = c.versions[1]
+        @test !isempty(unreleased.changes["General"])
+        @test unreleased.changes["General"][1] == "Here is a general note in a bullet point in the section General"
+        @test unreleased.changes["General_"] == ["Here are some general notes that are not in a section."]
+    end
+
     # Next we check several quite similar changelogs which have some differences in formatting
     @testset "$file" for file in readdir(test_path("good"); join = true)
         c = parsefile(file)

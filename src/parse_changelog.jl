@@ -121,6 +121,8 @@ end
 
 function bullets_to_list(items)
     # If there were no bullets, just text, then combine them
+    # (Note: we could add a dependency on StatsBase to get `rle` (or reimplement it),
+    # then merge all consecutive runs of `MarkdownAST.Text` into a single bullet.)
     if all(x -> nodevalue(x) isa MarkdownAST.Text, items)
         return [join((text_content(x) for x in items), " ")]
     else
