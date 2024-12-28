@@ -109,12 +109,12 @@ The following modifications and replacements are performed:
    ```
 """
 function generate(
-    ::Documenter,
-    inputfile::String,
-    outputfile::String;
-    repo::String,
-    branch::String = "master",
-)
+        ::Documenter,
+        inputfile::String,
+        outputfile::String;
+        repo::String,
+        branch::String = "master",
+    )
     # Get the map of token to full URL
     linkmap = collect_links(inputfile, repo)
 
@@ -214,11 +214,11 @@ The following link tokens are discovered:
    adds `[@octocat]: https://github.com/octocat` to the list
 """
 function generate(
-    ::CommonMark,
-    inputfile::String,
-    outputfile::String = inputfile;
-    repo::String,
-)
+        ::CommonMark,
+        inputfile::String,
+        outputfile::String = inputfile;
+        repo::String,
+    )
     # Get the map of token to full URL
     linkmap = collect(collect_links(inputfile, repo))
 
@@ -228,27 +228,29 @@ function generate(
     #  3. Own commits by hash
     #  4. External issues by issue number
     #  5. Other things by link token
-    sort!(linkmap; by = function(x)
-        k, v = x
-        if occursin("/releases/tag/", v)
-            # Sort releases by version number
-            return (1, VersionNumber(match(r"\[(?<version>.*)\]", k)["version"]))
-        elseif occursin("github.com/$(repo)/issues/", v)
-            # Sort issues by number
-            n = parse(Int, match(r"\[\#(?<id>\d+)\]", k)["id"])
-            return (2, n)
-        elseif occursin("github.com/$(repo)/commit/", v)
-            # Sort commit by hash (url)
-            return (3, v)
-        elseif occursin(r"github\.com/.*/issues/", v)
-            # Sort by repo name, then issues by number
-            m = match(r"\[(?<repo>.*)\#(?<id>\d+)\]", k)
-            n = parse(Int, m["id"])
-            return (4, m["repo"], n)
-        else
-            return (5, k)
+    sort!(
+        linkmap; by = function (x)
+            k, v = x
+            if occursin("/releases/tag/", v)
+                # Sort releases by version number
+                return (1, VersionNumber(match(r"\[(?<version>.*)\]", k)["version"]))
+            elseif occursin("github.com/$(repo)/issues/", v)
+                # Sort issues by number
+                n = parse(Int, match(r"\[\#(?<id>\d+)\]", k)["id"])
+                return (2, n)
+            elseif occursin("github.com/$(repo)/commit/", v)
+                # Sort commit by hash (url)
+                return (3, v)
+            elseif occursin(r"github\.com/.*/issues/", v)
+                # Sort by repo name, then issues by number
+                m = match(r"\[(?<repo>.*)\#(?<id>\d+)\]", k)
+                n = parse(Int, m["id"])
+                return (4, m["repo"], n)
+            else
+                return (5, k)
+            end
         end
-    end)
+    )
 
     # Read the source file and split the content to ignore the list of links
     content = read(inputfile, String)
