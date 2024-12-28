@@ -37,7 +37,7 @@ end
 function replace_until_convergence(str, repl...)
     for _ in 1:1000
         # 1.6-compatible multiple replacements
-        newstr = foldl(replace, repl, init=str)
+        newstr = foldl(replace, repl, init = str)
         if newstr == str
             return str
         else
