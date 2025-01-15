@@ -79,7 +79,7 @@ end
         # we parse dates for every entry
         @test isempty(filter(x -> x.date === nothing, jump.versions))
         # and find at least one change per version
-        @test isempty(filter(x -> isempty(x.changes), jump.versions))
+        @test isempty(filter(x -> isempty(x.sectioned_changes) && isempty(x.toplevel_changes), jump.versions))
         # there are no URLs in the section headers, so we shouldn't find any
         @test isempty(filter(x -> !isnothing(x.url), jump.versions))
     end
@@ -90,7 +90,7 @@ end
         # we parse dates for every entry
         @test isempty(filter(x -> x.date === nothing, documenter.versions))
         # and find at least one change per version
-        @test isempty(filter(x -> isempty(x.changes), documenter.versions))
+        @test isempty(filter(x -> isempty(x.sectioned_changes), documenter.versions))
         # and we parse a URL for every version
         @test isempty(filter(x -> isnothing(x.url), documenter.versions))
     end
@@ -103,7 +103,7 @@ end
         # we parse dates for every entry
         @test isempty(filter(x -> x.date === nothing, v1p1.versions))
         # and find at least one change per version
-        @test isempty(filter(x -> isempty(x.changes), v1p1.versions))
+        @test isempty(filter(x -> isempty(x.toplevel_changes) && isempty(x.sectioned_changes), v1p1.versions))
         # and we parse a URL for every version
         @test isempty(filter(x -> isnothing(x.url), v1p1.versions))
         @test length(v1p1.versions) == 2
@@ -112,24 +112,13 @@ end
         @test ver_1p1.version == "1.1.0"
         @test ver_1p1.url == "https://github.com/JuliaDocs/Changelog.jl/releases/tag/v1.1.0"
         @test ver_1p1.date == Date("2023-11-13")
-        @test only(keys(ver_1p1.changes)) == "Added"
-        @test ver_1p1.changes["Added"] == ["Links of the form `[<commit hash>]`, where `<commit hash>` is a commit hashof length 7 or 40, are now linkified. (#4)"]
+        @test only(keys(ver_1p1.sectioned_changes)) == "Added"
+        @test ver_1p1.sectioned_changes["Added"] == ["Links of the form `[<commit hash>]`, where `<commit hash>` is a commit hashof length 7 or 40, are now linkified. (#4)"]
 
         @test ver_1p0.version == "1.0.0"
         @test ver_1p0.url == "https://github.com/JuliaDocs/Changelog.jl/releases/tag/v1.0.0"
         @test ver_1p0.date == Date("2023-11-13")
-        @test ver_1p0.changes == ["First release. See README.md for currently supported functionality."]
-    end
-
-    @testset "general_section" begin
-        # For a version that has sections, but also has content _not_ in a section, we create a special "General" section
-        # to store that.
-        # What if you already have a general section? Then we create a `General_` section, and so-forth.
-        c = Changelog.parsefile(test_path("general_section.md"))
-        unreleased = c.versions[1]
-        @test !isempty(unreleased.changes["General"])
-        @test unreleased.changes["General"][1] == "Here is a general note in a bullet point in the section General"
-        @test unreleased.changes["General_"] == ["Here are some general notes that are not in a section."]
+        @test ver_1p0.toplevel_changes == ["First release. See README.md for currently supported functionality."]
     end
 
     # Next we check several quite similar changelogs which have some differences in formatting
@@ -143,8 +132,8 @@ end
         v1 = c.versions[2]
         @test unreleased.date === nothing
         @test v1.date == Date("2024-12-25")
-        @test !isempty(unreleased.changes)
-        @test !isempty(v1.changes)
+        @test !isempty(unreleased.sectioned_changes) || !isempty(unreleased.toplevel_changes)
+        @test !isempty(v1.sectioned_changes) || !isempty(v1.toplevel_changes)
     end
 
     # Lastly, we check that we don't error on some "bad" examples,

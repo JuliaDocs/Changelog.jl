@@ -1,10 +1,12 @@
-using Changelog: VersionInfo, SimpleLog
+using Changelog: VersionInfo, SimpleLog, OrderedDict
 @testset "VersionInfo and SimpleLog printing" begin
-    v = VersionInfo("1.0.0", nothing, Date("2024-12-27"), ["One change"])
+    v = VersionInfo("1.0.0", nothing, Date("2024-12-27"), ["One change"], OrderedDict("Section" => ["c1"]))
     v_str = repr("text/plain", v)
     @test contains(v_str, "- version: 1.0.0")
     @test contains(v_str, "- date: 2024-12-27")
     @test contains(v_str, "- One change")
+    @test contains(v_str, "Section")
+    @test contains(v_str, "- c1")
 
     c = SimpleLog("title", "intro", [v])
     c_str = repr("text/plain", c)

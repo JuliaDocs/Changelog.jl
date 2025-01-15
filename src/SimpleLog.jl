@@ -6,13 +6,16 @@ A struct representing the information in a changelog about a particular version,
 - `version::Union{Nothing, String}`: a string representation of a version number or name (e.g. "Unreleased" or "1.2.3").
 - `url::Union{Nothing, String}`: a URL associated to the version, if available
 - `date::Union{Nothing, Date}`: a date associated to the version, if available
-- `changes::Union{OrderedDict{String, Vector{String}}, Vector{String}}`: a list of changes associated to the version, either as a flat list (`Vector{String}`), or with ordered sections (`OrderedDict{String, Vector{String}`), where the keys are the section names and the values are the changes in that section. If a version uses sections, but also has items that are not in a section, a section called "General" will be used to store those. If there is already a section called "General", it will be named "General_", and so forth.
+- `toplevel_changes::Vector{String}`: a list of changes which are not within a section
+- `sectioned_changes::OrderedDict{String, Vector{String}}`: an ordered mapping of section name to a list of changes in that section.
+
 """
 struct VersionInfo
     version::Union{Nothing, String}
     url::Union{Nothing, String}
     date::Union{Nothing, Date}
-    changes::Union{OrderedDict{String, Vector{String}}, Vector{String}}
+    toplevel_changes::Vector{String}
+    sectioned_changes::OrderedDict{String, Vector{String}}
 end
 function Base.show(io::IO, ::MIME"text/plain", v::VersionInfo)
     return full_show(io, v)
@@ -31,21 +34,23 @@ function full_show(io, v::VersionInfo; indent = 0, showtype = true)
         print(io, "\n", pad, "- url: ", v.url)
     end
     print(io, "\n", pad, "- date: ", v.date)
-    changes = v.changes
-    return if isempty(changes)
+    return if isempty(v.sectioned_changes) && isempty(v.toplevel_changes)
         print(io, "\n", pad, "- and no documented changes")
-    elseif changes isa OrderedDict
-        print(io, "\n", pad, "- changes")
-        for (section_name, bullets) in pairs(changes)
-            print(io, "\n", pad, "  - $section_name")
-            for b in bullets
-                print(io, "\n", pad, "    - $b")
-            end
-        end
     else
         print(io, "\n", pad, "- changes")
-        for b in changes
-            print(io, "\n", pad, "  - $b")
+        if !isempty(v.toplevel_changes)
+            for b in v.toplevel_changes
+                print(io, "\n", pad, "  - $b")
+            end
+        end
+
+        if !isempty(v.sectioned_changes)
+            for (section_name, bullets) in pairs(v.sectioned_changes)
+                print(io, "\n", pad, "  - $section_name")
+                for b in bullets
+                    print(io, "\n", pad, "    - $b")
+                end
+            end
         end
     end
 end

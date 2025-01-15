@@ -84,10 +84,10 @@ SimpleLog with
       - First release. See README.md for currently supported functionality.
 ```
 
-The changes for 1.1.0 can be obtained by `log.versions[1].changes`:
+The changes for 1.1.0 can be obtained by `log.versions[1].sectioned_changes`:
 
 ```julia
-julia> changelog.versions[1].changes
+julia> changelog.versions[1].sectioned_changes
 OrderedCollections.OrderedDict{String, Vector{String}} with 1 entry:
   "Added" => ["Links of the form `[<commit hash>]`, where `<commit hash>` is a commit hashof length 7 or 40, are now linkified. (#4)"]
 ```
