@@ -135,8 +135,8 @@ end
 ##### Main parsing code
 #####
 
-# see `SimpleLog.jl` for the API entrypoints (`Base.parse` and `parsefile`)
-function _parse_simplelog!(ast::MarkdownAST.Node)
+# see `SimpleChangelog.jl` for the API entrypoints (`Base.parse` and `parsefile`)
+function _parse_simple_changelog!(ast::MarkdownAST.Node)
     # convert into a "MarkdownHeadingTree" where elements of a section are children of the section
     root = build_heading_tree!(ast)
     # Now, we have a tree where content under a heading in the markdown document is a descendent
@@ -198,5 +198,5 @@ function _parse_simplelog!(ast::MarkdownAST.Node)
 
         push!(versions, VersionInfo(version, version_url, date, toplevel_changes, sectioned_changes))
     end
-    return SimpleLog(title, intro, versions)
+    return SimpleChangelog(title, intro, versions)
 end

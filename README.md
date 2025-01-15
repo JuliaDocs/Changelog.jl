@@ -58,16 +58,16 @@ The typical workflow is as follows:
 Changelog also provides functionality for parsing changelogs into a simple structure which can be programmatically queried,
 e.g. to check what the changes are for a particular version. The API for this functionality consists of:
 
-- `SimpleLog`: structure that contains a simple representation of a changelog.
+- `SimpleChangelog`: structure that contains a simple representation of a changelog.
 - `VersionInfo`: structure that contains a simple representation of a version in a changelog.
-- `Base.parse(SimpleLog, str)`: parse a markdown-formatted string into a `SimpleLog`
-- `Changelog.parsefile`: parses a markdown-formatted file into a `SimpleLog`
+- `Base.parse(SimpleChangelog, str)`: parse a markdown-formatted string into a `SimpleChangelog`
+- `Changelog.parsefile`: parses a markdown-formatted file into a `SimpleChangelog`
 
 For example, using `Changelog.parsefile` on the [CHANGELOG.md](./CHANGELOG.md) as of version 1.1 gives:
 
 ```julia
 julia> changelog = Changelog.parsefile("CHANGELOG.md")
-SimpleLog with
+SimpleChangelog with
 - title: Changelog.jl changelog
 - intro: All notable changes to this project will be documented in this file.
 - 2 versions:

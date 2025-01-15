@@ -56,7 +56,7 @@ function full_show(io, v::VersionInfo; indent = 0, showtype = true)
 end
 
 """
-    SimpleLog
+    SimpleChangelog
 
 A simple in-memory changelog format, with properties:
 
@@ -64,23 +64,23 @@ A simple in-memory changelog format, with properties:
 - `intro::Union{Nothing, String}`
 - `versions::Vector{VersionInfo}`
 
-A `SimpleLog` can be parsed out of a markdown-formatted string with `Base.parse`.
+A `SimpleChangelog` can be parsed out of a markdown-formatted string with `Base.parse`.
 
-SimpleLogs are not intended to be roundtrippable in-memory representations of markdown
+SimpleChangelogs are not intended to be roundtrippable in-memory representations of markdown
 changelogs; rather, they discard most formatting and other details to provide a simple
 view to make it easy to query if the changelog has an entry for some particular version,
 or what the changes are for that version.
 
 See also: [`VersionInfo`](@ref), [`parsefile`](@ref).
 """
-struct SimpleLog
+struct SimpleChangelog
     title::Union{Nothing, String}
     intro::Union{Nothing, String}
     versions::Vector{VersionInfo}
 end
 
-function Base.show(io::IO, ::MIME"text/plain", c::SimpleLog)
-    print(io, SimpleLog, " with")
+function Base.show(io::IO, ::MIME"text/plain", c::SimpleChangelog)
+    print(io, SimpleChangelog, " with")
     print(io, "\n- title: ", c.title)
     print(io, "\n- intro: ", c.intro)
     n_versions = length(c.versions)
@@ -98,25 +98,25 @@ function Base.show(io::IO, ::MIME"text/plain", c::SimpleLog)
 end
 
 """
-    parse(::Type{SimpleLog}, text::AbstractString)
+    parse(::Type{SimpleChangelog}, text::AbstractString)
 
-Parse a [`SimpleLog`](@ref) from a markdown-formatted string.
+Parse a [`SimpleChangelog`](@ref) from a markdown-formatted string.
 """
-function Base.parse(::Type{SimpleLog}, text::AbstractString)
+function Base.parse(::Type{SimpleChangelog}, text::AbstractString)
     # parse into CommonMark AST
     parser = CM.Parser()
     CM.enable!(parser, CM.FootnoteRule())
     ast = parser(text)
     # convert to MarkdownAST AST
     ast = md_convert(MarkdownAST.Node, ast)
-    return _parse_simplelog!(ast)
+    return _parse_simple_changelog!(ast)
 end
 
 """
-    parsefile(path) -> SimpleLog
+    parsefile(path) -> SimpleChangelog
 
-Parse a [`SimpleLog`](@ref) from a file path `path`.
+Parse a [`SimpleChangelog`](@ref) from a file path `path`.
 """
 function parsefile(path)
-    return parse(SimpleLog, read(path, String))
+    return parse(SimpleChangelog, read(path, String))
 end
