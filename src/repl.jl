@@ -23,12 +23,12 @@ function show_args(pkgs::Vector{Pkg.Types.PackageSpec}; kwargs...)
     pkgs = deepcopy(pkgs) # don't mutate input
     foreach(handle_package_input!, pkgs)
 
-    Operations.update_registries(ctx; force=false, update_cooldown=Day(1))
+    Operations.update_registries(ctx; force = false, update_cooldown = Day(1))
     API.project_deps_resolve!(ctx.env, pkgs)
     API.registry_resolve!(ctx.registries, pkgs)
     API.stdlib_resolve!(pkgs)
-    API.ensure_resolved(ctx, ctx.env.manifest, pkgs, registry=true)
-    preserve=Pkg.PRESERVE_ALL
+    API.ensure_resolved(ctx, ctx.env.manifest, pkgs, registry = true)
+    preserve = Pkg.PRESERVE_ALL
     resolved_pkgs, deps_map = Pkg.Operations.targeted_resolve_up(ctx.env, ctx.registries, pkgs, preserve, ctx.julia_version)
     uuids = Set(pkg.uuid for pkg in pkgs)
     filter!(resolved_pkgs) do pkg
@@ -58,7 +58,8 @@ function show_args(pkgs::Vector{Pkg.Types.PackageSpec}; kwargs...)
     return nothing
 end
 
-spec = PSA[:name => "changelog",
+spec = PSA[
+    :name => "changelog",
     :short_name => "cl",
     :api => show_args,
     :should_splat => false,
@@ -70,10 +71,10 @@ spec = PSA[:name => "changelog",
     :completions => :complete_installed_packages,
     :description => "show the changelog for a package",
     :help => md"""
-    [cl|changelog] [-d|--diff] [pkgs...]
+            [cl|changelog] [-d|--diff] [pkgs...]
 
-Description
-""",
+        Description
+        """,
 ]
 
 spec = Pkg.REPLMode.CommandSpec(; spec...)
