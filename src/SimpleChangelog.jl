@@ -7,7 +7,7 @@ A struct representing the information in a changelog about a particular version,
 - `url::Union{Nothing, String}`: a URL associated to the version, if available
 - `date::Union{Nothing, Date}`: a date associated to the version, if available
 - `toplevel_changes::Vector{String}`: a list of changes which are not within a section
-- `sectioned_changes::OrderedDict{String, Vector{String}}`: an ordered mapping of section name to a list of changes in that section.
+- `sectioned_changes::Vector{Pair{String, Vector{String}}}`: an ordered mapping of section name to a list of changes in that section.
 
 """
 struct VersionInfo
@@ -15,7 +15,7 @@ struct VersionInfo
     url::Union{Nothing, String}
     date::Union{Nothing, Date}
     toplevel_changes::Vector{String}
-    sectioned_changes::OrderedDict{String, Vector{String}}
+    sectioned_changes::Vector{Pair{String, Vector{String}}}
 end
 function Base.show(io::IO, ::MIME"text/plain", v::VersionInfo)
     return full_show(io, v)
@@ -45,7 +45,7 @@ function full_show(io, v::VersionInfo; indent = 0, showtype = true)
         end
 
         if !isempty(v.sectioned_changes)
-            for (section_name, bullets) in pairs(v.sectioned_changes)
+            for (section_name, bullets) in v.sectioned_changes
                 print(io, "\n", pad, "  - $section_name")
                 for b in bullets
                     print(io, "\n", pad, "    - $b")
@@ -101,6 +101,9 @@ end
     parse(::Type{SimpleChangelog}, text::AbstractString)
 
 Parse a [`SimpleChangelog`](@ref) from a markdown-formatted string.
+
+!!! note
+    This functionality is primarily intended for parsing [KeepAChangeLog](https://keepachangelog.com/en/1.1.0/)-style changelogs, that have a title as a H1 (e.g. `#`) markdown header, followed by a list of versions with H2-level headers (`##`) formatted like `[1.1.0] - 2019-02-15` with or without a link on the version number, followed by a bulleted list of changes, potentially in subsections, each with H3 header. For such changelogs, parsing should be stable. We may also attempt to parse a wider variety of headers, for which the extent that we can parse may change in non-breaking releases (typically improving the parsing, but potentially regressing in some cases).
 """
 function Base.parse(::Type{SimpleChangelog}, text::AbstractString)
     # parse into CommonMark AST

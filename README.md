@@ -56,7 +56,9 @@ The typical workflow is as follows:
 ### Parsing changelogs
 
 Changelog also provides functionality for parsing changelogs into a simple structure which can be programmatically queried,
-e.g. to check what the changes are for a particular version. The API for this functionality consists of:
+e.g. to check what the changes are for a particular version. This functionality is primarily intended for parsing [KeepAChangeLog](https://keepachangelog.com/en/1.1.0/)-style changelogs, that have a title as a H1 (e.g. `#`) markdown header, followed by a list of versions with H2-level headers (`##`) formatted like `[1.1.0] - 2019-02-15` with or without a link on the version number, followed by a bulleted list of changes, potentially in subsections, each with H3 header. For such changelogs, parsing should be stable. We may also attempt to parse a wider variety of headers, for which the extent that we can parse may change in non-breaking releases (typically improving the parsing, but potentially regressing in some cases).
+
+The API for this functionality consists of:
 
 - `SimpleChangelog`: structure that contains a simple representation of a changelog.
 - `VersionInfo`: structure that contains a simple representation of a version in a changelog.
@@ -84,10 +86,10 @@ SimpleChangelog with
       - First release. See README.md for currently supported functionality.
 ```
 
-The changes for 1.1.0 can be obtained by `log.versions[1].sectioned_changes`:
+The changes for 1.1.0 can be obtained by `changelog.versions[1].sectioned_changes`:
 
 ```julia
 julia> changelog.versions[1].sectioned_changes
-OrderedCollections.OrderedDict{String, Vector{String}} with 1 entry:
-  "Added" => ["Links of the form `[<commit hash>]`, where `<commit hash>` is a commit hashof length 7 or 40, are now linkified. (#4)"]
+1-element Vector{Pair{String, Vector{String}}}:
+ "Added" => ["Links of the form `[<commit hash>]`, where `<commit hash>` is a commit hashof length 7 or 40, are now linkified. (#4)"]
 ```

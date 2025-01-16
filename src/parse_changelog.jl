@@ -181,7 +181,7 @@ function _parse_simple_changelog!(ast::MarkdownAST.Node)
 
         # Now let us formulate the changelog for this version
         # We may have subsections or just a flat list of changes
-        sectioned_changes = OrderedDict{String, Vector{String}}()
+        sectioned_changes = Pair{String, Vector{String}}[]
         seen = Set()
         for subsection in filter_children(version_section, MarkdownAST.Heading)
             subsection_name = text_content(subsection.heading_node)
@@ -190,7 +190,7 @@ function _parse_simple_changelog!(ast::MarkdownAST.Node)
             # and if we hit a text, we know it's not contained in an item that we are also pulling out.
             items = filter_tree(subsection, Union{MarkdownAST.Item, MarkdownAST.Text})
             union!(seen, items)
-            sectioned_changes[subsection_name] = bullets_to_list(items)
+            push!(sectioned_changes, subsection_name => bullets_to_list(items))
         end
         # see if there were items not within a subsection
         other_items = setdiff(filter_tree(version_section, Union{MarkdownAST.Item, MarkdownAST.Text}), seen)
