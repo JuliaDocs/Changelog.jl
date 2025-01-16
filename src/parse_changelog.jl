@@ -153,7 +153,7 @@ function _parse_simple_changelog!(ast::MarkdownAST.Node)
     # find highest-level header in document
     top_header = find_first_tree(root, MarkdownAST.Heading)
 
-    title = text_content(top_header.heading_node) # reach into the heading node to get the actual contenxt
+    title = text_content(top_header.heading_node) # reach into the heading node to get the actual context
 
     # Now back to the "main" tree, look for the first paragraph under the top-heading to get an "intro"
     intro_para = find_first_child(top_header, MarkdownAST.Paragraph)
