@@ -60,8 +60,8 @@ e.g. to check what the changes are for a particular version. The API for this fu
 
 - `SimpleChangelog`: structure that contains a simple representation of a changelog.
 - `VersionInfo`: structure that contains a simple representation of a version in a changelog.
-- `Base.parse(SimpleChangelog, str)`: parse a markdown-formatted string into a `SimpleChangelog`
-- `Changelog.parsefile`: parses a markdown-formatted file into a `SimpleChangelog`
+- `Base.parse(SimpleChangelog, str)`: parse a markdown-formatted string into a `SimpleChangelog` and likewise `Base.tryparse`
+- `Changelog.parsefile` (and `Changelog.tryparsefile`): parses a markdown-formatted file into a `SimpleChangelog`
 
 For example, using `Changelog.parsefile` on the [CHANGELOG.md](./CHANGELOG.md) as of version 1.1 gives:
 
