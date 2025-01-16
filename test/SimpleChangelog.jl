@@ -1,4 +1,4 @@
-using Changelog: VersionInfo, SimpleChangelog, OrderedDict
+using Changelog: VersionInfo, SimpleChangelog, OrderedDict, tryparsefile
 @testset "VersionInfo and SimpleChangelog printing" begin
     v = VersionInfo("1.0.0", nothing, Date("2024-12-27"), ["One change"], OrderedDict("Section" => ["c1"]))
     v_str = repr("text/plain", v)
@@ -21,4 +21,9 @@ using Changelog: VersionInfo, SimpleChangelog, OrderedDict
     @test contains(c_str, "⋮")
     @test contains(c_str, "- 10 versions:")
     @test count("- 1.0.0", c_str) == 5
+end
+
+@testset "tryparse" begin
+    @test tryparse(SimpleChangelog, "") === nothing
+    @test tryparsefile(test_path("empty.md")) === nothing
 end

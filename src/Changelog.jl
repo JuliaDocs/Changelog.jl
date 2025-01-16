@@ -13,7 +13,7 @@ using AbstractTrees
 using OrderedCollections: OrderedDict
 import CommonMark as CM
 
-VERSION >= v"1.11.0-DEV.469" && eval(Meta.parse("public parsefile, VersionInfo, SimpleChangelog, generate"))
+VERSION >= v"1.11.0-DEV.469" && eval(Meta.parse("public parsefile, VersionInfo, SimpleChangelog, generate, tryparsefile"))
 
 # generate Documenter changelogs and links
 include("generate.jl")

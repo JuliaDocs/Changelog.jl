@@ -113,10 +113,38 @@ function Base.parse(::Type{SimpleChangelog}, text::AbstractString)
 end
 
 """
+    tryparse(::Type{SimpleChangelog}, text::AbstractString)
+
+Try to parse a [`SimpleChangelog`](@ref) from a markdown-formatted string,
+returning `nothing` if unable to.
+
+"""
+function Base.tryparse(::Type{SimpleChangelog}, text::AbstractString)
+    try
+        parse(SimpleChangelog, text)
+    catch e
+        # This may be handy occasionally if we want to understand why we couldn't parse
+        # and don't want to manually run `parse(SimpleChangelog, text)`.
+        @debug "Error when parsing `SimpleChangelog` from changelog, returning `nothing`" exception=sprint(Base.display_error, e, catch_backtrace())
+        nothing
+    end
+end
+
+"""
     parsefile(path) -> SimpleChangelog
 
 Parse a [`SimpleChangelog`](@ref) from a file path `path`.
 """
 function parsefile(path)
     return parse(SimpleChangelog, read(path, String))
+end
+
+"""
+    tryparsefile(path) -> SimpleChangelog
+
+Try to parse a [`SimpleChangelog`](@ref) from a file path `path`, returning
+`nothing` if unable to.
+"""
+function tryparsefile(path)
+    return tryparse(SimpleChangelog, read(path, String))
 end
