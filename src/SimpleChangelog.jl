@@ -120,12 +120,12 @@ returning `nothing` if unable to.
 
 """
 function Base.tryparse(::Type{SimpleChangelog}, text::AbstractString)
-    try
+    return try
         parse(SimpleChangelog, text)
     catch e
         # This may be handy occasionally if we want to understand why we couldn't parse
         # and don't want to manually run `parse(SimpleChangelog, text)`.
-        @debug "Error when parsing `SimpleChangelog` from changelog, returning `nothing`" exception=sprint(Base.display_error, e, catch_backtrace())
+        @debug "Error when parsing `SimpleChangelog` from changelog, returning `nothing`" exception = sprint(Base.display_error, e, catch_backtrace())
         nothing
     end
 end
