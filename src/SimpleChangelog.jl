@@ -151,3 +151,53 @@ Try to parse a [`SimpleChangelog`](@ref) from a file path `path`, returning
 function tryparsefile(path)
     return tryparse(SimpleChangelog, read(path, String))
 end
+
+
+const CHANGELOG_NAMES = Set(permutedims(["changelog", "news", "release_notes", "changes", "release notes", "history", "version_history", "version history"]) .* [".md", "", ".txt"])
+
+"""
+    find_changelog(dir)
+
+Given a directory `dir`, attempts to find a changelog in the directory, returning the path to the changelog if one is found, checking the following possible filenames, with any casing:
+
+$(join(map(x -> "`$x`", sort!(collect(CHANGELOG_NAMES))), ", "))
+
+If no changelog file is found, `nothing` is returned.
+
+!!! note
+    The list of changelog names to check may grow or be re-ordered in non-breaking releases of Changelog.jl, but it will not shrink without a breaking release.
+"""
+function find_changelog(dir)
+    if !isdir(dir)
+        throw(ArgumentError("[find_changelog] A directory must be passed."))
+    end
+    contents = readdir(dir)
+    # we want the return to be based on the order in `CHANGELOG_NAMES`, so
+    # if there is e.g. both news and history, we use news.
+    # We check in the order prescribed by `CHANGELOG_NAMES`, but we use
+    # the casing determined by `contents`. If there is both `CHANGELOG` and
+    # `changelog` (only differing by casing), then we use the uppercase one,
+    # as `readdir` sorts in that way.
+    for lowercase_name in CHANGELOG_NAMES
+        idx = findfirst(c -> lowercase(c) == lowercase_name, contents)
+        if idx !== nothing
+            return joinpath(dir, contents[idx])
+        end
+    end
+    return nothing
+end
+
+"""
+    tryparsefile(mod::Module)
+
+Given a top-level module `mod` in a package, attempts to find the package directory using `pkgdir`,
+find a changelog in the package directory using [`find_changelog`](@ref), and finally
+parse the changelog using `tryparsefile`. If any step fails, returns `nothing`.
+"""
+function tryparsefile(mod::Module)
+    dir = pkgdir(mod)
+    dir === nothing && return nothing
+    file = find_changelog(dir)
+    file === nothing && return nothing
+    return tryparsefile(file)
+end
