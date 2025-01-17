@@ -2,7 +2,17 @@ name = "Changelog"
 uuid = "5217a498-cd5d-4ec6-b8c2-9b85a09b6e3e"
 version = "1.1.0"
 
+[deps]
+AbstractTrees = "1520ce14-60c1-5f80-bbc7-55ef81b5835c"
+CommonMark = "a80b9123-70ca-4bc0-993e-6e3bcb318db6"
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+MarkdownAST = "d0879d2d-cac2-40c8-9cee-1863dc0c7391"
+
 [compat]
+AbstractTrees = "0.4.5"
+CommonMark = "0.8.15"
+Dates = "1"
+MarkdownAST = "0.1.2"
 julia = "1.6"
 
 [extras]

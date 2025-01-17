@@ -52,3 +52,44 @@ The typical workflow is as follows:
    - Description of new feature with reference to pull request
      ([#123](https://github.com/JuliaDocs/Changelog.jl/issues/123)).
    ```
+
+### Parsing changelogs
+
+Changelog also provides functionality for parsing changelogs into a simple structure which can be programmatically queried,
+e.g. to check what the changes are for a particular version. This functionality is primarily intended for parsing [KeepAChangeLog](https://keepachangelog.com/en/1.1.0/)-style changelogs, that have a title as a H1 (e.g. `#`) markdown header, followed by a list of versions with H2-level headers (`##`) formatted like `[1.1.0] - 2019-02-15` with or without a link on the version number, followed by a bulleted list of changes, potentially in subsections, each with H3 header. For such changelogs, parsing should be stable. We may also attempt to parse a wider variety of headers, for which the extent that we can parse may change in non-breaking releases (typically improving the parsing, but potentially regressing in some cases).
+
+The API for this functionality consists of:
+
+- `SimpleChangelog`: structure that contains a simple representation of a changelog.
+- `VersionInfo`: structure that contains a simple representation of a version in a changelog.
+- `Base.parse(SimpleChangelog, str)`: parse a markdown-formatted string into a `SimpleChangelog` and likewise `Base.tryparse`
+- `Changelog.parsefile` (and `Changelog.tryparsefile`): parses a markdown-formatted file into a `SimpleChangelog`
+
+For example, using `Changelog.parsefile` on the [CHANGELOG.md](./CHANGELOG.md) as of version 1.1 gives:
+
+```julia
+julia> changelog = Changelog.parsefile("CHANGELOG.md")
+SimpleChangelog with
+- title: Changelog.jl changelog
+- intro: All notable changes to this project will be documented in this file.
+- 2 versions:
+  - 1.1.0
+    - url: https://github.com/JuliaDocs/Changelog.jl/releases/tag/v1.1.0
+    - date: 2023-11-13
+    - changes
+      - Added
+        - Links of the form `[<commit hash>]`, where `<commit hash>` is a commit hashof length 7 or 40, are now linkified. (#4)
+  - 1.0.0
+    - url: https://github.com/JuliaDocs/Changelog.jl/releases/tag/v1.0.0
+    - date: 2023-11-13
+    - changes
+      - First release. See README.md for currently supported functionality.
+```
+
+The changes for 1.1.0 can be obtained by `changelog.versions[1].sectioned_changes`:
+
+```julia
+julia> changelog.versions[1].sectioned_changes
+1-element Vector{Pair{String, Vector{String}}}:
+ "Added" => ["Links of the form `[<commit hash>]`, where `<commit hash>` is a commit hashof length 7 or 40, are now linkified. (#4)"]
+```
