@@ -16,7 +16,8 @@ When multiple changelogs are found, returns the changelog with the most recent v
 using the parsed date, or otherwise via the order of the list of changelog filenames.
 
 !!! note
-    The list of changelog names to check may grow or be re-ordered in non-breaking releases of Changelog.jl, but it will not shrink without a breaking release.
+    The list of changelog names to check may grow or be re-ordered in non-breaking releases of Changelog.jl, but it will not shrink without a breaking release. Likewise the default
+    value for `subdirs` is subject to grow but not shrink in non-breaking releases of Changelog.jl.
 """
 function find_changelog(pkgdir; subdirs=["docs/src"])
     dirs = [pkgdir]
