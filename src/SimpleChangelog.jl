@@ -205,20 +205,12 @@ end
 function find_version(cl::SimpleChangelog, version)
     version = string(version)
     versions = (v.version for v in cl.versions)
-    repl = v -> replace_until_convergence(v, r"[`\[\]\{\}]" => "")
+    repl = v -> replace_until_convergence(v, r"[`v\[\]\{\}]" => "")
     idx = @something(
         findfirst(==(version), versions),
         findfirst(contains(version), versions),
         findfirst(v -> contains(repl(v), version), versions)
     )
-    if idx === nothing && startswith(version, "v")
-        version_no_prefix = chopprefix(version, "v")
-        idx = @something(
-            findfirst(==(version_no_prefix), versions),
-            findfirst(contains(version_no_prefix), versions),
-            findfirst(v -> contains(repl(v), version_no_prefix), versions)
-        )
-    end
     idx === nothing && return nothing
     return cl.versions[idx]
 end
