@@ -30,4 +30,7 @@ include("SimpleChangelog.jl")
 # Tree traversal and parsing code
 include("parse_changelog.jl")
 
+# compat for older Julia versions
+include("compat.jl")
+
 end # module
