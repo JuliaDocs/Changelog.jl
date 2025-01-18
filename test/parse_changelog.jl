@@ -95,6 +95,18 @@ end
         @test isempty(filter(x -> isnothing(x.url), documenter.versions))
     end
 
+
+    # Similarly we check that we can parse Makie's changelog (as of Jan 2025).
+    @testset "Makie changelog" begin
+        makie = parsefile(test_path("makie.md"))
+        # we parse dates for every entry, except Unreleased
+        @test only(filter(x -> x.date === nothing, makie.versions)).version == "Unreleased"
+        # and find at least one change per version, except Unreleased
+        @test only(filter(x -> isempty(x.sectioned_changes) && isempty(x.toplevel_changes), makie.versions)).version == "Unreleased"
+        # and we parse a URL for every version
+        @test isempty(filter(x -> isnothing(x.url), makie.versions))
+    end
+
     @testset "v1.1 changelog" begin
         # Here we check in the changelog for this package as `v1.1.md`
         # This is a tricky one, as for v1.0.0, there are no bullet points (nor sections), only text.
