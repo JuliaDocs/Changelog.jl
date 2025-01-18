@@ -6,6 +6,14 @@ if VERSION < v"1.7.0-DEV.1088"
         for arg in reverse(args)
             expr = :((val = $arg) !== nothing ? val : $expr)
         end
-        return esc(:(something(let val; $expr; end)))
+        return esc(
+            :(
+                something(
+                    let val
+                        $expr
+                    end
+                )
+            )
+        )
     end
 end
