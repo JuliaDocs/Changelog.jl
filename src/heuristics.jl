@@ -71,13 +71,16 @@ end
 Attempts to find the `VersionInfo` associated to `version` in `changelog`.
 Searches `changelog.versions` for an exact match to `version`, then for approximate matches.
 
+Returns `nothing` if no `VersionInfo` could be found, and otherwise the matching `VersionInfo`.
+
+
 * if `version === :latest`, the latest version will be returned (by date, or failing that, the first entry)
 * if `version` is a VersionNumber, it will be converted to a string (using `string`), then:
 * if `version` is a string, it will be used to search for exact and then approximate matches
 
-Note that `string(v"1.1") = "1.1.0"`, meaning that passing a version number will search for the complete version. In contrast, passing a string "1.1" will search for a version number with 1.1 in it, favoring exact matches ("1.1"), then the first version starting with "1.1" (followed by a word-boundary such as `.` or a space), then the first version containing "1.1" in any position.
+Note that `string(v"1.1") = "1.1.0"`, meaning that passing a version number will search for the complete version. In contrast, passing a string "1.1" will search for a version number with 1.1 in it, favoring exact matches ("1.1"), then the first version starting with "1.1" (followed by a word-boundary such as `.` or a space), then the first version containing "1.1" in any position. Thus, passing strings allows [semver](https://semver.org/)-style searches, where `"1"` corresponds to the first (typically the most recent) 1.x.y version listed in the changelog, while `v"1"` corresponds to the 1.0.0 release.
 
-Returns `nothing` if no `VersionInfo` could be found, and otherwise the matching `VersionInfo`.
+Likewise, strings can be used effectively for date-based versioning schemes. Passing `"2024"` will search for the first (typically most recent) `2024-x-y` release, while passing `2024-12-01` will only match that version or a version name containing that string.
 
 !!! note
     The heuristics used here to find the most appropriate match may be changed in non-breaking releases of Changelog.jl. However, exact matches will always be preferred.
