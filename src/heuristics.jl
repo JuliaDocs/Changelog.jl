@@ -19,7 +19,7 @@ using the parsed date, or otherwise via the order of the list of changelog filen
     The list of changelog names to check may grow or be re-ordered in non-breaking releases of Changelog.jl, but it will not shrink without a breaking release. Likewise the default
     value for `subdirs` is subject to grow but not shrink in non-breaking releases of Changelog.jl.
 """
-function find_changelog(pkgdir; subdirs=["docs/src"])
+function find_changelog(pkgdir; subdirs = ["docs/src"])
     dirs = [pkgdir]
     for s in subdirs
         subdir_path = joinpath(pkgdir, s)
