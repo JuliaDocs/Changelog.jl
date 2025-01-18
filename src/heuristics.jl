@@ -49,10 +49,10 @@ function find_changelog(pkgdir; subdirs = ["docs/src"])
     end
     isempty(candidates) && return nothing
 
-    idx = argmax(most_recent_version(c.changelog) for c in candidates)
+    date, idx = findmax(most_recent_version(c.changelog) for c in candidates)
 
     # if we didn't parse dates out of any changelogs, use filename order instead
-    if most_recent_version(candidates[idx].changelog) == typemin(Date)
+    if date == typemin(Date)
         return candidates[1]
     else
         return candidates[idx]
