@@ -45,7 +45,8 @@ function find_changelog(pkgdir; subdirs = ["docs/src"])
     end
     isempty(candidates) && return nothing
 
-    date, idx = findmax(most_recent_version(c.changelog)[1] for c in candidates)
+    # comprehension over generator for 1.6 compat
+    date, idx = findmax([most_recent_version(c.changelog)[1] for c in candidates])
 
     # if we didn't parse dates out of any changelogs, use filename order instead
     if date == typemin(Date)
@@ -57,7 +58,8 @@ end
 
 function most_recent_version(cl::SimpleChangelog)
     isempty(cl.versions) && return typemin(Date), -1
-    return findmax(something(v.date, typemin(Date)) for v in cl.versions)
+    # comprehension over generator for 1.6 compat
+    return findmax([something(v.date, typemin(Date)) for v in cl.versions])
 end
 
 struct NoMatch end
@@ -97,7 +99,9 @@ function find_version(changelog::SimpleChangelog, version)
         end
     end
     version = string(version)
-    versions = (v.version for v in changelog.versions)
+
+    # comprehension over generator for 1.6 compat
+    versions = [v.version for v in changelog.versions]
 
     # roundtrip through parsing VersionNumber
     parsing_rt = versions -> map(versions) do v
