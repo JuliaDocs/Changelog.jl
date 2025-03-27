@@ -1,0 +1,13 @@
+{
+    "customLocalFormatters.formatters": [
+        {
+            "command": "julia --project=@runic -e 'using Runic; exit(Runic.main(ARGS))'",
+            "languages": [
+                "julia"
+            ]
+        }
+    ],
+    "[julia]": {
+        "editor.defaultFormatter": "jkillian.custom-local-formatters"
+    },
+}
