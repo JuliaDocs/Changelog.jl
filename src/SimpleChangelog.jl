@@ -151,3 +151,17 @@ Try to parse a [`SimpleChangelog`](@ref) from a file path `path`, returning
 function tryparsefile(path)
     return tryparse(SimpleChangelog, read(path, String))
 end
+
+"""
+    tryparsefile(mod::Module)
+
+Given a top-level module `mod` in a package, attempts to find the package directory using `pkgdir`,
+and find a changelog in the package directory using [`find_changelog`](@ref). If any step fails, returns `nothing`.
+"""
+function tryparsefile(mod::Module)
+    dir = pkgdir(mod)
+    dir === nothing && return nothing
+    nt = find_changelog(dirs)
+    nt && return nothing
+    return nt.changelog
+end

@@ -1,4 +1,4 @@
-using Changelog: VersionInfo, SimpleChangelog, tryparsefile
+using Changelog: VersionInfo, SimpleChangelog, tryparsefile, find_changelog, find_version
 @testset "VersionInfo and SimpleChangelog printing" begin
     v = VersionInfo("1.0.0", nothing, Date("2024-12-27"), ["One change"], ["Section" => ["c1"]])
     v_str = repr("text/plain", v)
