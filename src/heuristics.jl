@@ -61,8 +61,8 @@ function most_recent_version(cl::SimpleChangelog)
 end
 
 struct NoMatch end
-Base.contains(::AbstractString, ::NoMatch) = false
-Base.:(==)(::AbstractString, ::NoMatch) = false
+Base.contains(::NoMatch, ::Any) = false
+Base.:(==)(::Any, ::NoMatch) = false
 
 """
     find_version(changelog::SimpleChangelog, version)
