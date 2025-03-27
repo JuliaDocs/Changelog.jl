@@ -39,6 +39,7 @@ function find_changelog(pkgdir; subdirs = ["docs/src"])
             if idx !== nothing
                 path = joinpath(dir, contents[idx])
                 changelog = tryparsefile(path)
+                changelog === nothing && continue
                 push!(candidates, (; path, changelog))
             end
         end

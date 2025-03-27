@@ -38,4 +38,5 @@
 
     @test find_changelog(test_path("test_pkgs/TestPkg3")) === nothing
     @test find_changelog(test_path("test_pkgs/TestPkg4")) === nothing
+    @test find_changelog(test_path("test_pkgs/TestPkg5")) === nothing
 end
