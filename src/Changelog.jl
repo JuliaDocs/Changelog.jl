@@ -36,5 +36,4 @@ include("parse_changelog.jl")
 # `find_changelog` and `find_version`
 include("heuristics.jl")
 
-
 end # module
