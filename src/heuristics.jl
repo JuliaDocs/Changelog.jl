@@ -19,14 +19,9 @@ using the parsed date, or otherwise via the order of the list of changelog filen
     The list of changelog names to check may grow or be re-ordered in non-breaking releases of Changelog.jl, but it will not shrink without a breaking release. Likewise the default
     value for `subdirs` is subject to grow but not shrink in non-breaking releases of Changelog.jl.
 """
-function find_changelog(pkgdir; subdirs = ["docs/src"])
+function find_changelog(pkgdir; subdirs=["docs/src"])
     dirs = [pkgdir]
-    for s in subdirs
-        subdir_path = joinpath(pkgdir, s)
-        if isdir(subdir_path)
-            push!(dirs, subdir_path)
-        end
-    end
+    append!(dirs, filter!(isdir, [joinpath(pkgdir, s) for s in subdirs]))
     candidates = @NamedTuple{path::String, changelog::SimpleChangelog}[]
     for dir in dirs
         if !isdir(dir)
@@ -65,6 +60,10 @@ function most_recent_version(cl::SimpleChangelog)
     return findmax(something(v.date, typemin(Date)) for v in cl.versions)
 end
 
+struct NoMatch end
+Base.contains(::AbstractString, ::NoMatch) = false
+Base.:(==)(::AbstractString, ::NoMatch) = false
+
 """
     find_version(changelog::SimpleChangelog, version)
 
@@ -100,6 +99,13 @@ function find_version(changelog::SimpleChangelog, version)
     version = string(version)
     versions = (v.version for v in changelog.versions)
 
+    # roundtrip through parsing VersionNumber
+    parsing_rt = versions -> map(versions) do v
+        v = tryparse(VersionNumber, v)
+        isnothing(v) && return NoMatch()
+        return string(v)
+    end
+
     # remove brackets, code quoting, `v`'s
     repl = v -> replace_until_convergence(v, r"[`v\[\]\{\}]" => "")
     version_repl = repl(version)
@@ -110,17 +116,28 @@ function find_version(changelog::SimpleChangelog, version)
     startswith_version = Regex(raw"^\Q" * version * raw"\E\b")
     startswith_version_repl = Regex(raw"^\Q" * version_repl * raw"\E\b")
 
+    # we'll use these several times so let's prepare them upfront
+    parsing_rt_versions = parsing_rt(versions)
+    repl_versions = repl.(versions)
+    parsing_rt_repl_versions = parsing_rt(repl_versions)
+
     idx = @something(
-        # first, look for exact matches
+        # first, look for exact matches (without and without parsing)
         findfirst(==(version), versions),
+        findfirst(==(version), parsing_rt_versions),
         # then look for starting with our version, then a word-boundary
         findfirst(contains(startswith_version), versions),
+        findfirst(contains(startswith_version), parsing_rt_versions),
         # then the same, but after replacements
-        findfirst(v -> contains(repl(v), startswith_version_repl), versions),
+        findfirst(contains(startswith_version_repl), repl_versions),
+        findfirst(contains(startswith_version_repl), parsing_rt_repl_versions),
         # then look for any containment
         findfirst(contains(version), versions),
+        findfirst(contains(version), parsing_rt_versions),
         # then the same, but after replacements
-        findfirst(v -> contains(repl(v), version_repl), versions),
+        findfirst(contains(version_repl), repl_versions),
+        findfirst(contains(version_repl), parsing_rt_repl_versions),
+        # No result
         Some(nothing)
     )
     idx === nothing && return nothing

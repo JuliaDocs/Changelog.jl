@@ -8,3 +8,4 @@ test_path(filename) = joinpath(pkgdir(Changelog), "test", "test_changelogs", fil
 include("generate.jl")
 include("parse_changelog.jl")
 include("SimpleChangelog.jl")
+include("heuristics.jl")
