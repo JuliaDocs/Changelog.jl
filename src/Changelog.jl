@@ -20,10 +20,6 @@ include("compat.jl")
 # generate Documenter changelogs and links
 include("generate.jl")
 
-# CommonMark <> MarkdownAST code
-include("commonmark_markdownast_interop.jl")
-using .CommonMarkMarkdownASTInterop: md_convert
-
 # Convert MarkdownAST tree to our own tree
 include("heading_tree.jl")
 
