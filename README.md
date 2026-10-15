@@ -53,6 +53,38 @@ The typical workflow is as follows:
      ([#123](https://github.com/JuliaDocs/Changelog.jl/issues/123)).
    ```
 
+### Command line interface
+
+Changelog.jl can be installed as a command line app called `changelog` (requires Julia 1.12
+or later):
+```julia
+pkg> app add Changelog
+```
+This installs the `changelog` executable in `~/.julia/bin`. The same commands are
+available without installing the app using `julia -m Changelog <command>` (with a project
+that has Changelog.jl installed).
+
+The `generate` command corresponds to step 2 (and 4) above:
+```sh
+changelog generate                # update links in CHANGELOG.md
+changelog generate NEWS.md        # ... or another file
+changelog generate --check        # exit with code 1 if links are not up to date (e.g. for CI)
+changelog generate --format documenter -o docs/src/CHANGELOG.md
+```
+The repository for links like `[#123]` is taken from the existing generated links in the
+file if there are any (so this works in forks), and otherwise from the git remote `origin`.
+Use `--repo OWNER/NAME` to override. For `--format documenter` the branch for the `EditURL`
+link defaults to the default branch of `origin` and can be set with `--branch`.
+
+The parsing functionality (see below) is available via the `show` and `versions` commands:
+```sh
+changelog show                    # changes for the latest version
+changelog show 1.1                # changes for version 1.1.x
+changelog show path/to/Pkg 1.1    # ... in a changelog found in another directory
+changelog versions                # list versions and release dates
+```
+Run `changelog --help` and `changelog <command> --help` for all options.
+
 ### Parsing changelogs
 
 Changelog also provides functionality for parsing changelogs into a simple structure which can be programmatically queried,

@@ -5,14 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-<!-- ## [Unreleased]
+## [Unreleased]
 
 ### Added
-- Public types `SimpleChangelog` and `VersionInfo` which capture a simple in-memory representation of a changelog
-- `Base.parse(SimpleChangelog, input)` and public function `parsefile` for parsing `SimpleChangelog`s from files and other representations.
+- Public types `SimpleChangelog` and `VersionInfo` which capture a simple in-memory
+  representation of a changelog. ([#11])
+- `Base.parse(SimpleChangelog, input)` and public function `parsefile` for parsing
+  `SimpleChangelog`s from files and other representations. ([#11])
+- Command line interface `changelog`, available as a Pkg app (`pkg> app add Changelog`,
+  requires Julia 1.12) or via `julia -m Changelog`, with commands `generate`, `show`, and
+  `versions`. The `generate` command infers the repository from existing links or the git
+  remote `origin`. ([#19])
+- Keyword argument `editurl_path` to `generate(::Documenter, ...)` for setting the path of
+  the changelog in the `EditURL` link. ([#19])
 
 ### Changed
-- Require CommonMark.jl v1, and use its MarkdownAST extension for the AST conversion. -->
+- Require CommonMark.jl v1, and use its MarkdownAST extension for the AST conversion.
+  ([#20])
 
 
 ## [v1.1.0] - 2023-11-13
