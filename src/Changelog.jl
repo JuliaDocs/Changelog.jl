@@ -12,7 +12,7 @@ using Dates
 using AbstractTrees
 import CommonMark as CM
 
-VERSION >= v"1.11.0-DEV.469" && eval(Meta.parse("public parsefile, VersionInfo, SimpleChangelog, generate, tryparsefile, find_changelog, find_version"))
+VERSION >= v"1.11.0-DEV.469" && eval(Meta.parse("public parsefile, VersionInfo, SimpleChangelog, generate, tryparsefile, find_changelog, find_version, main"))
 
 # compat for older Julia versions
 include("compat.jl")
@@ -31,5 +31,8 @@ include("parse_changelog.jl")
 
 # `find_changelog` and `find_version`
 include("heuristics.jl")
+
+# Command line interface
+include("cli.jl")
 
 end # module
