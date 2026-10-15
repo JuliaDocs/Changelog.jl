@@ -111,7 +111,7 @@ function Base.parse(::Type{SimpleChangelog}, text::AbstractString)
     CM.enable!(parser, CM.FootnoteRule())
     ast = parser(text)
     # convert to MarkdownAST AST
-    ast = md_convert(MarkdownAST.Node, ast)
+    ast = MarkdownAST.Node(ast)
     return _parse_simple_changelog!(ast)
 end
 

@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Public types `SimpleChangelog` and `VersionInfo` which capture a simple in-memory representation of a changelog
-- `Base.parse(SimpleChangelog, input)` and public function `parsefile` for parsing `SimpleChangelog`s from files and other representations. -->
+- `Base.parse(SimpleChangelog, input)` and public function `parsefile` for parsing `SimpleChangelog`s from files and other representations.
+
+### Changed
+- Require CommonMark.jl v1, and use its MarkdownAST extension for the AST conversion. -->
+
 
 ## [v1.1.0] - 2023-11-13
 ### Added

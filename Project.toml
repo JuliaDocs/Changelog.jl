@@ -10,7 +10,7 @@ MarkdownAST = "d0879d2d-cac2-40c8-9cee-1863dc0c7391"
 
 [compat]
 AbstractTrees = "0.4.5"
-CommonMark = "0.8.15"
+CommonMark = "1"
 Dates = "1"
 MarkdownAST = "0.1.2"
 julia = "1.6"
