@@ -148,3 +148,46 @@ function find_version(changelog::SimpleChangelog, version)
     idx === nothing && return nothing
     return changelog.versions[idx]
 end
+
+"""
+    version_has_breaking_changes(pkg_code_path, version::VersionNumber)
+
+Returns a `NamedTuple` with two fields:
+
+- `found_mention_of_breaking_changes::Bool`: whether the changelog for the package at `pkg_code_path` contains a mention of breaking changes for the version `version`.
+- `methodology::String`: a string describing the methodology used to determine the presence of breaking changes in the changelog.
+"""
+function version_has_breaking_changes(pkg_code_path, version::VersionNumber)
+    msg_lines = String[]
+    OK = false
+    if !isdir(pkg_code_path)
+        push!(msg_lines, "Package code path is not a directory.")
+    else
+        ret = find_changelog(pkg_code_path)
+        if ret === nothing
+            push!(msg_lines, "Found no changelog in package directory.")
+        else
+            changelog_path, cl = ret
+            push!(msg_lines, "Found changelog at `$(relpath(changelog_path, pkg_code_path))`.")
+            ver = find_version(cl, version)
+            if ver === nothing
+                found_versions = join([repr(v.version) for v in cl.versions], ", ", ", and ")
+                push!(msg_lines, "Did not find version matching $(version) in changelog. Found versions: $(found_versions).")
+            else
+                r = r"breaking"i
+                OK |= any(contains(r), ver.toplevel_changes)
+                for (section_name, changes) in ver.sectioned_changes
+                    OK |= contains(section_name, r)
+                    OK |= any(contains(r), changes)
+                end
+                if OK
+                    push!(msg_lines, "Found version matching $(version) and found mention of breaking changes in the version notes.")
+                else
+                    push!(msg_lines, "Found version matching $(version) but did not find any mention of breaking changes in the version notes.")
+                end
+            end
+        end
+    end
+    msg = join(msg_lines, " ")
+    return (; found_mention_of_breaking_changes = OK, methodology = msg)
+end
