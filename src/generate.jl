@@ -5,7 +5,7 @@ abstract type OutputFormat end
 struct Documenter <: OutputFormat end
 struct CommonMark <: OutputFormat end
 
-function collect_links(inputfile::String, repo::String)
+function collect_links(inputfile::String, repo::String, host::String)
     # Output mapping tokens to the full URL
     # (e.g. "[#123]" => "https://github.com/JuliaDocs/Documenter.jl/issues/123")
     linkmap = Dict{String, String}()
@@ -19,7 +19,7 @@ function collect_links(inputfile::String, repo::String)
     # Example: [JuliaLang/julia#123] -> https://github.com/JuliaLang/julia/issues/123
     # There is no need to distinguish between PRs and Issues because GitHub redirects.
     for m in eachmatch(r"(?<!\])\[(?<repo>[a-zA-Z0-9/\.]+?)\#(?<id>[0-9]+)\](?![\[\(])", content)
-        linkmap[m.match] = "https://github.com/$(m["repo"])/issues/$(m["id"])"
+        linkmap[m.match] = "https://$(host)/$(m["repo"])/issues/$(m["id"])"
     end
 
     # Rule: [#XXXX] -> https://github.com/url/issue/XXXX
@@ -27,28 +27,28 @@ function collect_links(inputfile::String, repo::String)
     # Example: [#123] -> https://github.com/JuliaDocs/Documenter.jl/issues/123
     # There is no need to distinguish between PRs and Issues because GitHub redirects.
     for m in eachmatch(r"(?<!\])\[\#(?<id>[0-9]+)\](?![\[\(])", content)
-        linkmap[m.match] = "https://github.com/$(repo)/issues/$(m["id"])"
+        linkmap[m.match] = "https://$(host)/$(repo)/issues/$(m["id"])"
     end
 
     # Rule: [@XXXX] -> https://github.com/XXXX
     # Description: Replace users with a link to their GitHub
     # Example: [@odow] -> https://github.com/odow
     for m in eachmatch(r"(?<!\])\[@(?<id>.+?)\](?![\[\(])", content)
-        linkmap[m.match] = "https://github.com/$(m["id"])"
+        linkmap[m.match] = "https://$(host)/$(m["id"])"
     end
 
     # Rule: [vX.Y.Z] -> url/releases/tag/vX.Y.Z
     # Description: Replace version headers with a link to the GitHub release
     # Example: [v0.27.0] -> https://github.com/JuliaDocs/Documenter.jl/releases/tag/v0.27.0
     for m in eachmatch(r"(?<!\])(?<token>\[(?<tag>v[0-9]+.[0-9]+.[0-9]+)\])(?![\[\(])", content)
-        linkmap[m["token"]] = "https://github.com/$(repo)/releases/tag/$(m["tag"])"
+        linkmap[m["token"]] = "https://$(host)/$(repo)/releases/tag/$(m["tag"])"
     end
 
     # Rule: [<commit hash>] -> https://github.com/url/commit/<commit hash>
     # Description: Replace short (7) or long (40) commit hash with a link to the commit
     # Example: [98c2c4f] -> https://github.com/JuliaDocs/Changelog.jl/commit/98c2c4f
     for m in eachmatch(r"(?<!\])\[(?<commit>[a-f0-9]{7}|[a-f0-9]{40})\](?![\[\(])", content)
-        linkmap[m.match] = "https://github.com/$(repo)/commit/$(m["commit"])"
+        linkmap[m.match] = "https://$(host)/$(repo)/commit/$(m["commit"])"
     end
 
     return linkmap
@@ -57,13 +57,14 @@ end
 """
     generate(
         ::Documenter, inputfile::String, outputfile::String;
-        repo::String, branch::String = "master",
+        repo::String, branch::String = "master", host::String = "github.com"
     )
 
 Read the input changelog file and modify it, according to the rules below, so that in can be
 fed to [Documenter](https://github.com/JuliaDocs/Documenter.jl). `repo` is the default
 repository (e.g. `repo = "JuliaDocs/Changelog.jl"`) and `branch` the branch for which to
-point Documenter's `EditURL` link to.
+point Documenter's `EditURL` link to. `host` is the hostname of the Git hosting service,
+without https:// prefix (e.g. `host = "github.com"`).
 
 The following modifications and replacements are performed:
 
@@ -105,9 +106,10 @@ function generate(
         outputfile::String;
         repo::String,
         branch::String = "master",
+        host::String = "github.com"
     )
     # Get the map of token to full URL
-    linkmap = collect_links(inputfile, repo)
+    linkmap = collect_links(inputfile, repo, host)
 
     # Read the source file and split the content to ignore the list of links
     content = read(inputfile, String)
@@ -157,7 +159,7 @@ function generate(
     # Header to set EditURL
     header = """
     ```@meta
-    EditURL = "https://github.com/$repo/blob/$branch/CHANGELOG.md"
+    EditURL = "https://$host/$repo/blob/$branch/CHANGELOG.md"
     ```
 
     """
@@ -174,7 +176,7 @@ end
 """
     generate(
         ::CommonMark, inputfile::String, outputfile::String = inputfile;
-        repo::String,
+        repo::String, host::String = "github.com"
     )
 
 Read the input changelog file and modify it as described below. In particular, this method
@@ -183,25 +185,25 @@ file.
 
 The following link tokens are discovered:
 
- - `[#XYZ]` results in the link `[#XYZ]: https://github.com/\$repo/issues/XYZ`, where `repo`
+ - `[#XYZ]` results in the link `[#XYZ]: https://\$host/\$repo/issues/XYZ`, where `repo`
    is the input keyword argument. For example, `[#123]` adds
    `[#123]: https://github.com/JuliaDocs/Changelog.jl/issues/123` to the list (with
    `repo = "JuliaDocs/Changelog.jl"`).
 
  - `[<commit hash>]` (where `<commit hash>` is either of length 7 or 40) results in the link
-   `[<commit hash>]: https://github.com/\$repo/commit/<commit hash>` where `repo` is the
+   `[<commit hash>]: https://\$host/\$repo/commit/<commit hash>` where `repo` is the
    input keyword argument.
 
- - `[abc#XYZ]` results in the link `[abc#XYZ]: https://github.com/abc/issues/XYZ`. For
+ - `[abc#XYZ]` results in the link `[abc#XYZ]: https://\$host/abc/issues/XYZ`. For
    example, `[JuliaLang/julia#265]` adds
    `[JuliaLang/julia#265]: https://github.com/JuliaLang/julia/issues/265` to the list.
 
- - `[vX.Y.Z]` results in the link `[vX.Y.Z]: https://github.com/\$repo/releases/tag/vX.Y.Z`.
+ - `[vX.Y.Z]` results in the link `[vX.Y.Z]: https://\$host/\$repo/releases/tag/vX.Y.Z`.
    For example, `[v1.0.0]` adds
    `[v1.0.0](https://github.com/JuliaDocs/Changelog.jl/releases/tag/v1.0.0)` to the list
    (with `repo = "JuliaDocs/Changelog.jl"`).
 
- - `[@abc]` results in the link `[@abc]: https://github.com/abc`. For example, `[@octocat]`
+ - `[@abc]` results in the link `[@abc]: https://\$host/abc`. For example, `[@octocat]`
    adds `[@octocat]: https://github.com/octocat` to the list
 """
 function generate(
@@ -209,9 +211,10 @@ function generate(
         inputfile::String,
         outputfile::String = inputfile;
         repo::String,
+        host::String = "github.com"
     )
     # Get the map of token to full URL
-    linkmap = collect(collect_links(inputfile, repo))
+    linkmap = collect(collect_links(inputfile, repo, host))
 
     # Sorting order:
     #  1. Releases by version
@@ -225,14 +228,14 @@ function generate(
             if occursin("/releases/tag/", v)
                 # Sort releases by version number
                 return (1, VersionNumber(match(r"\[(?<version>.*)\]", k)["version"]))
-            elseif occursin("github.com/$(repo)/issues/", v)
+            elseif occursin("$(host)/$(repo)/issues/", v)
                 # Sort issues by number
                 n = parse(Int, match(r"\[\#(?<id>\d+)\]", k)["id"])
                 return (2, n)
-            elseif occursin("github.com/$(repo)/commit/", v)
+            elseif occursin("$(host)/$(repo)/commit/", v)
                 # Sort commit by hash (url)
                 return (3, v)
-            elseif occursin(r"github\.com/.*/issues/", v)
+            elseif occursin(Regex("\\Q$(host)\\E/.*/issues/"), v)
                 # Sort by repo name, then issues by number
                 m = match(r"\[(?<repo>.*)\#(?<id>\d+)\]", k)
                 n = parse(Int, m["id"])
